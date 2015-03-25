@@ -319,7 +319,7 @@ inline int Memory::pushnosrc(int size)
 inline int Memory::pushpnt(void* pnt)
 {
 	int* p=malloc(1,TYPE_BINARY); if (!p) return MTLERR_OM;
-	*(BINSTART(p))=(int)pnt;
+	*(BINSTART(p))=*((int*)pnt);
 	return push(PNTTOVAL(p));
 }
 

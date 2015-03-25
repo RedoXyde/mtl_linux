@@ -434,7 +434,7 @@ int Compiler::addnative(int nref, char** nameref, int* valref
 //			PRINTF(m)(1,"valref %s = %x\n",nameref[i],valref[i]);
 //			TABSET(m,fun,FUN_BC,((int)valref[i])<<1);
 			TABSET(m,fun,FUN_BC,STACKPULL(m));
-			TABSET(m,fun,FUN_REF,(int)arg);
+			TABSET(m,fun,FUN_REF,*((int*)arg));
 			TABSET(m,fun,FUN_REFERENCE,PNTTOVAL(p));
 		}
 		else if ((coderef[i]==CODE_VAR)

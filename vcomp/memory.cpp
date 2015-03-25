@@ -50,7 +50,7 @@ int Stack::bigger(Memory* m)
 	int currentpp=pp-base;
 
 	size*=2;
-	
+
 	int* newbase=new int[size];
 	if (!newbase)
 	{
@@ -148,7 +148,7 @@ void Memory::dump()
 int* Memory::malloc(int size,int type)
 {
 	int *p=NULL;
-	
+
 	int blocsize=size+HEADER_LENGTH;
 	p=new int[blocsize];
 	if (!p) return p;
@@ -174,8 +174,8 @@ int* Memory::mallocExternal(void* pnt,FORGET fun)
 {
 	int* p=malloc(2,TYPE_EXT);
 	if (!p) return p;
-	TABSET(this,p,0,(int)pnt);
-	TABSET(this,p,1,(int)fun);
+	TABSET(this,p,0,*((int*)pnt));
+	TABSET(this,p,1,*((int*)fun));
 	return p;
 }
 
