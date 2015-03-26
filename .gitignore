@@ -1,0 +1,6 @@
+*.o
+mtl_simu
+mtl_comp
+*.bin
+*.a
+.*
