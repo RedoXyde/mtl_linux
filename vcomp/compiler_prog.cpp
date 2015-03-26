@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -38,9 +39,9 @@ int Compiler::parseprogram()
 int Compiler::parseexpression()
 {
 	int k;
-	
+
 	if (k=parsearithm()) return k;
-	
+
 	if (!parser->next(0)) return 0;
 	if (strcmp(parser->token,"::"))
     {
@@ -55,7 +56,7 @@ int Compiler::parseexpression()
 
 	bc->addchar(OPdeftabb);
 	bc->addchar(2);
-	
+
 	return 0;
 }
 
@@ -63,7 +64,7 @@ int Compiler::parseexpression()
 int Compiler::parsearithm()
 {
 	int k;
-	
+
 	if (k=parsea1()) return k;
 	while(1)
     {
@@ -92,7 +93,7 @@ int Compiler::parsearithm()
 int Compiler::parsea1()
 {
 	int k;
-	
+
 	if ((parser->next(0))&&(!strcmp(parser->token,"!")))
     {
 		if (k=parsea1()) return k;
@@ -107,7 +108,7 @@ int Compiler::parsea1()
 int Compiler::parsea2()
 {
 	int k,op,typ;
-	
+
 	if (k=parsea3()) return k;
 	while(1)
     {
@@ -139,7 +140,7 @@ int Compiler::parsea2()
 int Compiler::parsea3()
 {
 	int k,op,typ;
-	
+
 	if (k=parsea4()) return k;
 	while(1)
     {
@@ -154,7 +155,7 @@ int Compiler::parsea3()
 		if (k=parsea4()) return k;
 		bc->addchar(op);
 
-		int* ptyp;
+		intptr_t* ptyp;
 		if (typ==1) ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
 		if (k=unif(VALTOPNT(STACKGET(m,0)),ptyp)) return k;
 		STACKDROP(m);
@@ -165,7 +166,7 @@ int Compiler::parsea3()
 int Compiler::parsea4()
 {
 	int k,op,typ;
-	
+
 	if (k=parsea5()) return k;
 	while(1)
     {
@@ -181,7 +182,7 @@ int Compiler::parsea4()
 		if (k=parsea5()) return k;
 		bc->addchar(op);
 
-		int* ptyp;
+		intptr_t* ptyp;
 		if (typ==1) ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
 		if (k=unif(VALTOPNT(STACKGET(m,0)),ptyp)) return k;
 		STACKDROP(m);
@@ -192,7 +193,7 @@ int Compiler::parsea4()
 int Compiler::parsea5()
 {
 	int k,op;
-	
+
 	if (k=parsea6()) return k;
 	while(1)
     {
@@ -221,7 +222,7 @@ int Compiler::parsea6()
 	int k;
 
 	if (!parser->next(0)) return parseterm();
-	
+
 	if (!strcmp(parser->token,"-"))
 	{
 		if (!parser->next(0)) return parsea6();

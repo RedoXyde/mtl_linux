@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -71,11 +72,11 @@ int Compiler::getsystempackage()
 }
 
 // crée et empile un package
-int Compiler::createpackage(const char* name,int loghach)
+intptr_t Compiler::createpackage(const char* name,int loghach)
 {
-	int k;
+	intptr_t k;
 	if (k=PUSHMALLOCCLEAR(m,PACK_LENGTH)) return k;
-	int* p=VALTOPNT(STACKGET(m,0));
+	intptr_t* p=VALTOPNT(STACKGET(m,0));
 
 	if (k=STRPUSH(m,name)) return k;
 	TABSET(m,p,PACK_NAME,STACKPULL(m));
@@ -103,13 +104,13 @@ int Compiler::hash(const char* name)
 
 // ajoute une référence à un package
 // [ref package] -> [package]
-void Compiler::addreftopackage(int* ref,int* package)
+void Compiler::addreftopackage(intptr_t* ref,intptr_t* package)
 {
 	int v;
 	if (TABGET(ref,REF_NAME)!=NIL) v=hash(STRSTART(VALTOPNT(TABGET(ref,REF_NAME))));
 	else v=hash(STRSTART(VALTOPNT(TABGET(VALTOPNT(TABGET(ref,REF_TYPE)),TYPEHEADER_LENGTH+1))));
 
-	int* p=VALTOPNT(TABGET(package,PACK_HACH));
+	intptr_t* p=VALTOPNT(TABGET(package,PACK_HACH));
 
 //	TABSET(m,ref,REF_PACKAGE,PNTTOVAL(package));
 	v&=TABLEN(p)-2;
@@ -121,16 +122,16 @@ void Compiler::addreftopackage(int* ref,int* package)
 }
 
 // recherche d'un type dans un environnement
-int* Compiler::searchtype(int env,const char* name)
+intptr_t* Compiler::searchtype(int env,const char* name)
 {
-	int v=hash(name);
+	intptr_t v=hash(name);
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((TABGET(ref,REF_NAME)==NIL)
 				&&(!strcmp(name,STRSTART(VALTOPNT(TABGET(VALTOPNT(TABGET(ref,REF_TYPE)),TYPEHEADER_LENGTH+1))))) )
 				return ref;
@@ -142,16 +143,16 @@ int* Compiler::searchtype(int env,const char* name)
 }
 
 // recherche d'un type non défini dans un environnement
-int* Compiler::searchemptytype(int env,const char* name)
+intptr_t* Compiler::searchemptytype(int env,const char* name)
 {
-	int v=hash(name);
+	intptr_t v=hash(name);
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((TABGET(ref,REF_CODE)==INTTOVAL(CODE_EMPTYTYPE))
 				&&(!strcmp(name,STRSTART(VALTOPNT(TABGET(VALTOPNT(TABGET(ref,REF_TYPE)),TYPEHEADER_LENGTH+1))))) )
 				return ref;
@@ -167,11 +168,11 @@ void Compiler::dumppackage(int env)
 	while(env!=NIL)
 	{
 		PRINTF(m)(LOG_DEVCORE,"package %s",STRSTART(VALTOPNT(TABGET(VALTOPNT(env),PACK_NAME))));
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,TABLEN(p)-1);
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,TABLEN(p)-1);
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			char* name=NULL;
 			if (TABGET(ref,REF_NAME)!=NIL) name=STRSTART(VALTOPNT(TABGET(ref,REF_NAME)));
 			if (!name) name=STRSTART(VALTOPNT(TABGET(VALTOPNT(TABGET(ref,REF_TYPE)),TYPEHEADER_LENGTH+1)));
@@ -183,12 +184,12 @@ void Compiler::dumppackage(int env)
 	}
 }
 
-int Compiler::searchbytype(int env,int type)
+intptr_t Compiler::searchbytype(int env,int type)
 {
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,TABLEN(p)-1);
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,TABLEN(p)-1);
 		while(vref!=NIL)
 		{
 			if (TABGET(VALTOPNT(vref),REF_TYPE)==type) return vref;
@@ -199,17 +200,17 @@ int Compiler::searchbytype(int env,int type)
 	return NIL;
 }
 
-int Compiler::fillproto(int env,int* fun)
+intptr_t Compiler::fillproto(int env,intptr_t* fun)
 {
-	int k;
-	int v=hash(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))));
+	intptr_t k;
+	intptr_t v=hash(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))));
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((ref!=fun)&&(VALTOINT(TABGET(ref,REF_CODE))>=0))	// on recherche des fonctions
 			{
 				if (  (!strcmp(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))),STRSTART(VALTOPNT(TABGET(ref,REF_NAME)))))
@@ -231,16 +232,16 @@ int Compiler::fillproto(int env,int* fun)
 	return 0;
 }
 
-int Compiler::findproto(int env,int* fun)
+intptr_t Compiler::findproto(int env,intptr_t* fun)
 {
-	int v=hash(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))));
+	intptr_t v=hash(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))));
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((ref!=fun)&&(VALTOINT(TABGET(ref,REF_CODE))>=0))	// on recherche des fonctions
 			{
 				if (  (!strcmp(STRSTART(VALTOPNT(TABGET(fun,REF_NAME))),STRSTART(VALTOPNT(TABGET(ref,REF_NAME)))))
@@ -257,16 +258,16 @@ int Compiler::findproto(int env,int* fun)
 }
 
 // recherche d'une référence dans un environnement
-int* Compiler::searchref(int env,char* name)
+intptr_t* Compiler::searchref(int env,char* name)
 {
-	int v=hash(name);
+	intptr_t v=hash(name);
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((TABGET(ref,REF_NAME)!=NIL)
 				&&(!strcmp(name,STRSTART(VALTOPNT(TABGET(ref,REF_NAME))))) )
 				{
@@ -284,16 +285,16 @@ int* Compiler::searchref(int env,char* name)
 }
 
 // recherche d'une référence dans un environnement, ne marque pas la référence comme utilisée
-int* Compiler::searchref_nosetused(int env,char* name)
+intptr_t* Compiler::searchref_nosetused(int env,char* name)
 {
-	int v=hash(name);
+	intptr_t v=hash(name);
 	while(env!=NIL)
 	{
-		int* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
-		int vref=TABGET(p,v&(TABLEN(p)-2));
+		intptr_t* p=VALTOPNT(TABGET(VALTOPNT(env),PACK_HACH));
+		intptr_t vref=TABGET(p,v&(TABLEN(p)-2));
 		while(vref!=NIL)
 		{
-			int* ref=VALTOPNT(vref);
+			intptr_t* ref=VALTOPNT(vref);
 			if ((TABGET(ref,REF_NAME)!=NIL)
 				&&(!strcmp(name,STRSTART(VALTOPNT(TABGET(ref,REF_NAME))))) )
 				return ref;
@@ -304,13 +305,11 @@ int* Compiler::searchref_nosetused(int env,char* name)
 	return NULL;
 }
 
-
-
 // ajout d'un label dans une liste de labels
-int Compiler::addlabel(int base,const char* name,int val,int ref)
+intptr_t Compiler::addlabel(intptr_t base,const char* name,int val,intptr_t ref)
 {
-	int k;
-	int* p=MALLOCCLEAR(m,LABELLIST_LENGTH);
+	intptr_t k;
+	intptr_t* p=MALLOCCLEAR(m,LABELLIST_LENGTH);
 	if (!p) return MTLERR_OM;
 	TABSET(m,p,LABELLIST_NEXT,STACKGETFROMREF(m,base,0));
 	STACKSETFROMREF(m,base,0,PNTTOVAL(p));
@@ -323,10 +322,10 @@ int Compiler::addlabel(int base,const char* name,int val,int ref)
 }
 
 // compte le nombre de labels
-int Compiler::nblabels(int base)
+int Compiler::nblabels(intptr_t base)
 {
 	int n=0;
-	int vlab=STACKGETFROMREF(m,base,0);
+	intptr_t vlab=STACKGETFROMREF(m,base,0);
 	while(vlab!=NIL)
 	{
 		n++;
@@ -335,7 +334,7 @@ int Compiler::nblabels(int base)
 	return n;
 }
 
-void Compiler::removenlabels(int base,int n)
+void Compiler::removenlabels(intptr_t base,int n)
 {
 	while(n>0)
 	{
@@ -345,12 +344,12 @@ void Compiler::removenlabels(int base,int n)
 }
 
 // recherche d'un label dans une liste de labels
-int Compiler::searchlabel_byname(int base,const char* name,int* val,int* ref)
+int Compiler::searchlabel_byname(intptr_t base,const char* name,int* val,intptr_t* ref)
 {
-	int vlab=STACKGETFROMREF(m,base,0);
+	intptr_t vlab=STACKGETFROMREF(m,base,0);
 	while(vlab!=NIL)
 	{
-		int* lab=VALTOPNT(vlab);
+		intptr_t* lab=VALTOPNT(vlab);
 		if (!strcmp(name,STRSTART(VALTOPNT(TABGET(lab,LABELLIST_NAME)))) )
 		{
 			if (val) *val=TABGET(lab,LABELLIST_VAL);
@@ -363,12 +362,12 @@ int Compiler::searchlabel_byname(int base,const char* name,int* val,int* ref)
 }
 
 // recherche d'un label dans une liste de labels
-int Compiler::searchlabel_byval(int base,int val, char** name)
+int Compiler::searchlabel_byval(intptr_t base,int val, char** name)
 {
-	int vlab=STACKGETFROMREF(m,base,0);
+	intptr_t vlab=STACKGETFROMREF(m,base,0);
 	while(vlab!=NIL)
 	{
-		int* lab=VALTOPNT(vlab);
+		intptr_t* lab=VALTOPNT(vlab);
 		if (val==TABGET(lab,LABELLIST_VAL))
 		{
 			*name=STRSTART(VALTOPNT(TABGET(lab,LABELLIST_NAME)));
@@ -380,16 +379,16 @@ int Compiler::searchlabel_byval(int base,int val, char** name)
 }
 
 // création d'un tuple à partir d'une liste de labels
-int* Compiler::tuplefromlabels(int base)
+intptr_t* Compiler::tuplefromlabels(intptr_t base)
 {
 	int n=nblabels(base);
-	int* t=MALLOC(m,n,TYPE_TAB);
+	intptr_t* t=MALLOC(m,n,TYPE_TAB);
 	if (!t) return t;
 
-	int vlab=STACKGETFROMREF(m,base,0);
+	intptr_t vlab=STACKGETFROMREF(m,base,0);
 	int i; for(i=n-1;i>=0;i--)
 	{
-		int* lab=VALTOPNT(vlab);
+		intptr_t* lab=VALTOPNT(vlab);
 		TABSET(m,t,i,TABGET(lab,LABELLIST_REF));
 		vlab=TABGET(lab,LABELLIST_NEXT);
 	}
@@ -398,14 +397,14 @@ int* Compiler::tuplefromlabels(int base)
 
 
 // ajoute des fonctions à un package
-int Compiler::addnative(int nref, const char** nameref, int* valref
+intptr_t Compiler::addnative(int nref, const char** nameref, int* valref
               , int* coderef, const char** typeref,void* arg)
 {
 	int i,k;
 
 	for(i=0;i<nref;i++)
     {
-		int* p=MALLOCCLEAR(m,REF_LENGTH);
+		intptr_t* p=MALLOCCLEAR(m,REF_LENGTH);
 		if (!p) return MTLERR_OM;
 		if (k=STACKPUSH(m,PNTTOVAL(p))) return MTLERR_OM;
 
@@ -425,7 +424,7 @@ int Compiler::addnative(int nref, const char** nameref, int* valref
 //			if (k=PUSHPNT(m,(int*)valref[i])) return k;
 			if (k=STACKPUSH(m,INTTOVAL(valref[i]))) return k;
 
-			int* fun=MALLOCCLEAR(m,FUN_LENGTH);
+			intptr_t* fun=MALLOCCLEAR(m,FUN_LENGTH);
 			if (!fun) return MTLERR_OM;
 			TABSET(m,p,REF_VAL,PNTTOVAL(fun));
 

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -18,11 +19,11 @@
 // types
 
 // création d'un noeud de type basique (éventuellement paramétrique)
-int Compiler::createnodetypecore(const char* name)
+intptr_t Compiler::createnodetypecore(const char* name)
 {
-	int k;
+	intptr_t k;
 
-	int* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+2);
+	intptr_t* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+2);
 	if (!p) return MTLERR_OM;
 	if (STACKPUSH(m,PNTTOVAL(p))) return MTLERR_OM;
 
@@ -34,9 +35,9 @@ int Compiler::createnodetypecore(const char* name)
 }
 
 // création d'un noeud de type basique (éventuellement paramétrique)
-int Compiler::createnodetypecore(int name)
+intptr_t Compiler::createnodetypecore(int name)
 {
-	int* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+2);
+	intptr_t* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+2);
 	if (!p) return MTLERR_OM;
 	if (STACKPUSH(m,PNTTOVAL(p))) return MTLERR_OM;
 
@@ -46,14 +47,14 @@ int Compiler::createnodetypecore(int name)
 }
 
 // création d'un noeud de type non basique
-int Compiler::createnodetype(int type)
+intptr_t Compiler::createnodetype(int type)
 {
 	int size=0;
 	if ((type==TYPENAME_UNDEF)||(type==TYPENAME_WEAK)) size=0;
 	if ((type==TYPENAME_LIST)||(type==TYPENAME_TAB)||(type==TYPENAME_REC)) size=1;
 	if (type==TYPENAME_FUN) size=2;
 
-	int* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
+	intptr_t* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
 	if (!p) return MTLERR_OM;
 	if (STACKPUSH(m,PNTTOVAL(p))) return MTLERR_OM;
 
@@ -63,9 +64,9 @@ int Compiler::createnodetype(int type)
 
 // création d'un noeud de type tuple (n éléments empilés)
 // empile le résultat
-int Compiler::createnodetuple(int size)
+intptr_t Compiler::createnodetuple(int size)
 {
-	int* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
+	intptr_t* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
 	if (!p) return MTLERR_OM;
 	TABSET(m,p,TYPEHEADER_CODE,INTTOVAL(TYPENAME_TUPLE));
 	int i; for(i=size-1;i>=0;i--) TABSET(m,p,TYPEHEADER_LENGTH+i,STACKPULL(m));
@@ -75,9 +76,9 @@ int Compiler::createnodetuple(int size)
 
 // création d'un noeud de type tuple dans la compilation de valeurs (n éléments empilés au rangs 0, 2, 4, 2n-2)
 // empile le résultat, sans dépiler les valeurs du tuple
-int Compiler::createnodetupleval(int size)
+intptr_t Compiler::createnodetupleval(int size)
 {
-	int* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
+	intptr_t* p=MALLOCCLEAR(m,TYPEHEADER_LENGTH+size);
 	if (!p) return MTLERR_OM;
 	TABSET(m,p,TYPEHEADER_CODE,INTTOVAL(TYPENAME_TUPLE));
 	int i; for(i=size-1;i>=0;i--) TABSET(m,p,TYPEHEADER_LENGTH+i,STACKGET(m,2*(size-1-i)));
@@ -86,7 +87,7 @@ int Compiler::createnodetupleval(int size)
 }
 
 // trouve le type équivalent
-int* Compiler::actualtype(int* p)
+intptr_t* Compiler::actualtype(intptr_t* p)
 {
 	int vp=TABGET(p,TYPEHEADER_ACTUAL);
 	if (vp!=NIL) return actualtype(VALTOPNT(vp));
@@ -94,7 +95,7 @@ int* Compiler::actualtype(int* p)
 }
 
 // production d'un type
-int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newvars,int* rnode)
+int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newvars,intptr_t* rnode)
 {
 	int k,n;
 
@@ -206,20 +207,20 @@ int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newva
     }
 	else if (islabel(p->token))
     {
-		int* t=searchtype(env,p->token);
+		intptr_t* t=searchtype(env,p->token);
 		if (!t)
 		{
 			PRINTF(m)(LOG_RUNTIME,"Compiler : unknown type %s\n",p->token);
 			return MTLERR_SN;
 		}
-		int* q=VALTOPNT(TABGET(t,REF_TYPE));
+		intptr_t* q=VALTOPNT(TABGET(t,REF_TYPE));
 		int vargs=TABGET(q,TYPEHEADER_LENGTH);
 		if (vargs==NIL) return STACKPUSH(m,TABGET(t,REF_TYPE));
 		else
 		{
 			if (k=createnodetypecore(TABGET(q,TYPEHEADER_LENGTH+1))) return k;
 			int n=TABLEN(VALTOPNT(vargs));
-			int* t0=MALLOCCLEAR(m,TABLEN(VALTOPNT(vargs)));
+			intptr_t* t0=MALLOCCLEAR(m,TABLEN(VALTOPNT(vargs)));
 			if (!t0) return MTLERR_OM;
 			if (k=STACKPUSH(m,PNTTOVAL(t0))) return k;
 			if (!p->next(0))
@@ -249,7 +250,7 @@ int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newva
 			}
 			TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH,STACKGET(m,0));
 			STACKDROP(m);
-		}
+    }
     }
 	else
 	{
@@ -260,9 +261,9 @@ int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newva
 }
 
 // gestion des noeuds rec : on les lie avec le champ ACTUAL
-int Compiler::parse_rnode(int *p)
+intptr_t Compiler::parse_rnode(intptr_t *p)
 {
-	int k,i;
+	intptr_t k,i;
 
 	int c=VALTOINT(TABGET(p,TYPEHEADER_CODE));
 	if ((c==TYPENAME_WEAK)||(c==TYPENAME_UNDEF)) return 0;	// type faible ou non défini, pas de récursion
@@ -277,7 +278,7 @@ int Compiler::parse_rnode(int *p)
 
 	if (c==TYPENAME_CORE)
 	{
-		int* tup=VALTOPNT(TABGET(p,TYPEHEADER_LENGTH));
+		intptr_t* tup=VALTOPNT(TABGET(p,TYPEHEADER_LENGTH));
 		for(i=0;i<TABLEN(tup);i++) if (k=parse_rnode(VALTOPNT(TABGET(tup,i)))) return k;
 	}
 	else if (c==TYPENAME_FUN)
@@ -302,10 +303,10 @@ int Compiler::parse_rnode(int *p)
 }
 
 // création d'un graphe de type directement à partir d'un parser (utile pour les types écrits dans le code source)
-int Compiler::creategraph(Parser* p,int env,int mono)
+intptr_t Compiler::creategraph(Parser* p,int env,int mono)
 {
 	int k,labels;
-	int rnode=0;
+	intptr_t rnode=0;
 	if (k=STACKPUSH(m,NIL)) return k;
 	labels=STACKREF(m);
 //k=parsegraph(p,env,mono,0,labels,0,&rnode);
@@ -318,10 +319,10 @@ int Compiler::creategraph(Parser* p,int env,int mono)
 
 // création d'un graphe de type directement à partir d'un parser (utile pour les types écrits dans le code source)
 // avec une liste de labels pré-existante
-int Compiler::creategraph(Parser* p,int env,int mono,int labels)
+intptr_t Compiler::creategraph(Parser* p,int env,int mono,int labels)
 {
 	int k;
-	int rnode=0;
+	intptr_t rnode=0;
 	if (k=parsegraph(p,env,mono,0,labels,0,&rnode)) return k;
 	if (rnode) return parse_rnode(VALTOPNT(STACKGET(m,0)));
 	return 0;
@@ -329,7 +330,7 @@ int Compiler::creategraph(Parser* p,int env,int mono,int labels)
 
 
 // création d'un graphe de type à partir d'une chaîne
-int Compiler::creategraph(const char* src,int env,int mono)
+intptr_t Compiler::creategraph(const char* src,int env,int mono)
 {
 //	PRINTF(m)(LOG_DEVCORE,"Compiler : creategraph : %s\n",src);
 
@@ -342,7 +343,7 @@ int Compiler::creategraph(const char* src,int env,int mono)
 
 
 
-int Compiler::recechograph(Prodbuffer *output,int* p,int rec,int labels)
+int Compiler::recechograph(Prodbuffer *output,intptr_t* p,int rec,int labels)
 {
 	int i,k;
 	p=actualtype(p);
@@ -362,7 +363,7 @@ int Compiler::recechograph(Prodbuffer *output,int* p,int rec,int labels)
 		if (vargs!=NIL)
 		{
 			output->printf("(");
-			int* tup=VALTOPNT(vargs);
+			intptr_t* tup=VALTOPNT(vargs);
 			for(i=0;i<TABLEN(tup);i++)
 			{
 				if (i) output->printf(" ");
@@ -429,7 +430,7 @@ int Compiler::recechograph(Prodbuffer *output,int* p,int rec,int labels)
 }
 
 
-int Compiler::echograph(Prodbuffer *output,int* p)
+intptr_t Compiler::echograph(Prodbuffer *output,intptr_t* p)
 {
 	int k,labels;
 	if (k=STACKPUSH(m,NIL)) return k;
@@ -441,7 +442,7 @@ int Compiler::echograph(Prodbuffer *output,int* p)
 
 
 // copie de graphe
-int Compiler::reccopytype(int *p)
+intptr_t Compiler::reccopytype(intptr_t *p)
 {
 	int k,i;
 
@@ -457,7 +458,7 @@ int Compiler::reccopytype(int *p)
 		for(i=TYPEHEADER_LENGTH;i<TABLEN(p);i++) if (k=STACKPUSH(m,NIL)) return k;
 		if (k=createnodetuple(TABLEN(p)-TYPEHEADER_LENGTH)) return k;
 		TABSET(m,p,TYPEHEADER_COPY,STACKGET(m,0));	// positionne le champ 'copy' de l'original
-		int* q=VALTOPNT(STACKGET(m,0));
+		intptr_t* q=VALTOPNT(STACKGET(m,0));
 		for(i=TYPEHEADER_LENGTH;i<TABLEN(p);i++)
 		{
 			if (k=reccopytype(VALTOPNT(TABGET(p,i)))) return k;
@@ -473,7 +474,7 @@ int Compiler::reccopytype(int *p)
 	if (k) return k;	// copie le noeud
 	TABSET(m,p,TYPEHEADER_COPY,STACKGET(m,0));	// positionne le champ 'copy' de l'original
 
-	int* q=VALTOPNT(STACKGET(m,0));
+	intptr_t* q=VALTOPNT(STACKGET(m,0));
 	if (c==TYPENAME_FUN)
 	{
 		if (k=reccopytype(VALTOPNT(TABGET(p,TYPEHEADER_LENGTH)))) return k;
@@ -497,7 +498,7 @@ int Compiler::reccopytype(int *p)
 		if (vargs==NIL) return 0;
 		else
 		{
-			int* tup=VALTOPNT(vargs);
+			intptr_t* tup=VALTOPNT(vargs);
 			for(i=0;i<TABLEN(tup);i++) if (k=reccopytype(VALTOPNT(TABGET(tup,i)))) return k;
 			if (k=DEFTAB(m,TABLEN(tup))) return k;
 			TABSET(m,q,TYPEHEADER_LENGTH,STACKPULL(m));
@@ -510,7 +511,7 @@ int Compiler::reccopytype(int *p)
 }
 
 // remise à nil du champ 'copy' d'un graphe
-int Compiler::recresetcopy(int *p)
+intptr_t Compiler::recresetcopy(intptr_t *p)
 {
 	int k,i;
 
@@ -528,7 +529,7 @@ int Compiler::recresetcopy(int *p)
 		if (vargs==NIL) return 0;
 		else
 		{
-			int* tup=VALTOPNT(vargs);
+			intptr_t* tup=VALTOPNT(vargs);
 			for(i=0;i<TABLEN(tup);i++) if (k=recresetcopy(VALTOPNT(TABGET(tup,i)))) return k;
 		}
 	}
@@ -555,9 +556,9 @@ int Compiler::recresetcopy(int *p)
 	return 0;
 }
 
-int Compiler::copytype(int *p)
+intptr_t Compiler::copytype(intptr_t *p)
 {
-	int k;
+	intptr_t k;
 	if (k=reccopytype(p)) return k;
 	if (k=recresetcopy(p)) return k;
 	return 0;
@@ -565,9 +566,9 @@ int Compiler::copytype(int *p)
 
 
 // passage des UNDEF en WEAK
-int Compiler::recgoweak(int *p)
+intptr_t Compiler::recgoweak(intptr_t *p)
 {
-	int k,i;
+	intptr_t k,i;
 
 	p=actualtype(p);
 	int vq=TABGET(p,TYPEHEADER_COPY);
@@ -582,7 +583,7 @@ int Compiler::recgoweak(int *p)
 		if (vargs==NIL) return 0;
 		else
 		{
-			int* tup=VALTOPNT(vargs);
+			intptr_t* tup=VALTOPNT(vargs);
 			for(i=0;i<TABLEN(tup);i++) if (k=recgoweak(VALTOPNT(TABGET(tup,i)))) return k;
 		}
 	}
@@ -612,14 +613,14 @@ int Compiler::recgoweak(int *p)
 
 
 // unification de graphe
-int Compiler::restoreactual(int* t,int* s,int vt,int vs,int k)
+int Compiler::restoreactual(intptr_t* t,intptr_t* s,int vt,int vs,int k)
 {
 	TABSET(m,t,TYPEHEADER_ACTUAL,vt);
 	TABSET(m,s,TYPEHEADER_ACTUAL,vs);
 	return k;
 }
 
-int Compiler::recunif(int* s,int* t)
+intptr_t Compiler::recunif(intptr_t* s,intptr_t* t)
 {
 	s=actualtype(s);
 	t=actualtype(t);
@@ -690,8 +691,8 @@ int Compiler::recunif(int* s,int* t)
 			int vtupt=TABGET(t,TYPEHEADER_LENGTH);
 			if ((vtups==NIL)&&(vtupt==NIL)) return 0;
 			if ((vtups==NIL)||(vtupt==NIL)) return restoreactual(t,s,vt,vs,MTLERR_TYPE);
-			int* tups=VALTOPNT(vtups);
-			int* tupt=VALTOPNT(vtupt);
+			intptr_t* tups=VALTOPNT(vtups);
+			intptr_t* tupt=VALTOPNT(vtupt);
 			int len=TABLEN(tups);
 			if (len!=TABLEN(tupt)) return restoreactual(t,s,vt,vs,MTLERR_TYPE);
 			int i; for(i=0;i<len;i++)
@@ -702,9 +703,9 @@ int Compiler::recunif(int* s,int* t)
 	return 0;
 }
 
-int Compiler::unif(int* x,int* y)
+intptr_t Compiler::unif(intptr_t* x,intptr_t* y)
 {
-	int l;
+	intptr_t l;
 
 	if (!(l=recunif(x,y))) return 0;
 
@@ -723,23 +724,23 @@ int Compiler::unif(int* x,int* y)
 }
 
 // [fun [arg]]
-int Compiler::unif_argfun()
+intptr_t Compiler::unif_argfun()
 {
-	int k;
-	int* fun=VALTOPNT(STACKPULL(m));
-	int* arg=VALTOPNT(STACKGET(m,0));
+	intptr_t k;
+	intptr_t* fun=VALTOPNT(STACKPULL(m));
+	intptr_t* arg=VALTOPNT(STACKGET(m,0));
 
 	if (k=unif(VALTOPNT(TABGET(fun,TYPEHEADER_LENGTH)),arg)) return k;
 	STACKSET(m,0,TABGET(fun,TYPEHEADER_LENGTH+1));
 	return 0;
 }
 
-int* Compiler::argsfromfun(int *f)
+intptr_t* Compiler::argsfromfun(intptr_t *f)
 {
 	return VALTOPNT(TABGET(f,TYPEHEADER_LENGTH));
 }
 
-void Compiler::echonode(int code,int* p)
+void Compiler::echonode(int code,intptr_t* p)
 {
 	if (code==TYPENAME_CORE) PRINTF(m)(LOG_COMPILER,"%s",STRSTART(VALTOPNT(TABGET(p,TYPEHEADER_LENGTH+1))));
 	else if (code==TYPENAME_UNDEF) PRINTF(m)(LOG_COMPILER,"u*");
@@ -752,9 +753,9 @@ void Compiler::echonode(int code,int* p)
 
 // unification d'un plus grand vers un plus petit
 // attention, OPsearch suppose que seul MTLERR_TYPE peut arriver
-int Compiler::recunifbigger(int* s,int* t)
+intptr_t Compiler::recunifbigger(intptr_t* s,intptr_t* t)
 {
-	int* s0=s;	// on retient le s initial
+	intptr_t* s0=s;	// on retient le s initial
 	s=actualtype(s);
 	t=actualtype(t);
 	if (s==t) return 0;	// ceci gère le cas des types basiques
@@ -835,12 +836,12 @@ int Compiler::recunifbigger(int* s,int* t)
 		}
 		else if (ns==TYPENAME_CORE)
 		{
-			int vtups=TABGET(s,TYPEHEADER_LENGTH);
-			int vtupt=TABGET(t,TYPEHEADER_LENGTH);
+			intptr_t vtups=TABGET(s,TYPEHEADER_LENGTH);
+			intptr_t vtupt=TABGET(t,TYPEHEADER_LENGTH);
 			if ((vtups==NIL)&&(vtupt==NIL)) return 0;
 			if ((vtups==NIL)||(vtupt==NIL)) restoreactual(t,s,vt,vs,MTLERR_TYPE);
-			int* tups=VALTOPNT(vtups);
-			int* tupt=VALTOPNT(vtupt);
+			intptr_t* tups=VALTOPNT(vtups);
+			intptr_t* tupt=VALTOPNT(vtupt);
 			int len=TABLEN(tups);
 			if (len!=TABLEN(tupt)) return restoreactual(t,s,vt,vs,MTLERR_TYPE);
 			int i; for(i=0;i<len;i++)
@@ -851,7 +852,7 @@ int Compiler::recunifbigger(int* s,int* t)
 	return 0;
 }
 
-int Compiler::unifbigger(int* x,int* y)
+intptr_t Compiler::unifbigger(intptr_t* x,intptr_t* y)
 {
 	int l;
 

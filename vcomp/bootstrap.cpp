@@ -15,6 +15,7 @@
 #include "param.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "prodbuffer.h"
@@ -65,7 +66,7 @@ int StartMetal(const char *starter, const char* output, bool inSign)
 			char sizeStr[9];
 			sprintf(sizeStr, "%.8x", m->util->compiler->brelease->getsize());
 			f->write(sizeStr, 8);
-		}	
+		}
 		f->write(m->util->compiler->brelease->getstart(),m->util->compiler->brelease->getsize());
 		if (inSign) {
 			f->write("Mind", 4);

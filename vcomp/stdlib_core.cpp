@@ -13,7 +13,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-
+#include <stdint.h>
 
 #include "terminal.h"
 #include "prodbuffer.h"
@@ -108,9 +108,9 @@ const char* coretype[]=
 };
 
 
-int Compiler::addstdlibcore()
+intptr_t Compiler::addstdlibcore()
 {
-	int k;
+	intptr_t k;
 	if (k=addnative(NBcore,corename,coreval,corecode,coretype,m)) return k;
 /*	FILE* f=fopen("bc.txt","w");
 	for(k=0;k<NBcore;k++)

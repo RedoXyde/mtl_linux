@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -67,7 +68,7 @@ int Compiler::parseterm()
 		{
 			if (islabel(parser->token))
 			{
-				int *p;
+				intptr_t *p;
 				if ((p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 					&&(VALTOINT(TABGET(p,REF_CODE))==CODE_FIELD))
 				return parsefields(p);
@@ -98,7 +99,7 @@ int Compiler::parseterm()
 		if (k=createnodetype(TYPENAME_TAB)) return k;
 		if (k=createnodetype(TYPENAME_UNDEF)) return k;
 		TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH,STACKGET(m,0));
-		int* p=VALTOPNT(STACKPULL(m));
+		intptr_t* p=VALTOPNT(STACKPULL(m));
 
 		while(1)
 		{
@@ -186,10 +187,10 @@ int Compiler::parseterm()
 
 // parsing de la création d'une structure
 // p contient la référence du premier champ
-int Compiler::parsefields(int* p)
+int Compiler::parsefields(intptr_t* p)
 {
 	int k;
-	int* type=VALTOPNT(TABGET(VALTOPNT(TABGET(p,REF_VAL)),FIELD_TYPE));
+	intptr_t* type=VALTOPNT(TABGET(VALTOPNT(TABGET(p,REF_VAL)),FIELD_TYPE));
 	int n=VALTOINT(TABGET(type,REF_VAL));
 	bc_byte_or_int(n,OPmktabb,OPmktab);	// création de la structure
 	if (k=copytype(VALTOPNT(TABGET(type,REF_TYPE)))) return k;	// création du type
@@ -201,14 +202,14 @@ int Compiler::parsefields(int* p)
 		if (k=unif(VALTOPNT(STACKGET(m,1)),
 			VALTOPNT(TABGET(argsfromfun(VALTOPNT(STACKGET(m,0))),TYPEHEADER_LENGTH)) )) return k;
 		STACKSET(m,0,TABGET(VALTOPNT(STACKGET(m,0)),TYPEHEADER_LENGTH+1));
-		
+
 		if (k=parser->parsekeyword(":")) return k;
 		if (k=parseexpression()) return k;
 		if (k=unif(VALTOPNT(STACKGET(m,0)),VALTOPNT(STACKGET(m,1)))) return k;
 		STACKDROPN(m,2);
 		bc_byte_or_int( VALTOINT(TABGET(VALTOPNT(TABGET(p,REF_VAL)),FIELD_NUM)), OPsetstructb,OPsetstruct);
 
-		
+
 		if (!parser->next(0))
 		{
 			PRINTF(m)(LOG_COMPILER,"Compiler : ']' expected (found EOF)\n");
@@ -237,7 +238,7 @@ int Compiler::parseref()
 	int k;
 
 	int val;
-	int ref;
+	intptr_t ref;
 	if (!searchlabel_byname(locals,parser->token,&val,&ref))	// recherche dans les variables locales
 	{
 		bc_byte_or_int(VALTOINT(val),OPgetlocalb,OPgetlocal);
@@ -246,7 +247,7 @@ int Compiler::parseref()
 	}
 	val=-1;
 
-	int *p;
+	intptr_t *p;
 	if (p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 	{
 		ref=PNTTOVAL(p);
@@ -273,7 +274,7 @@ int Compiler::parseref()
 
 	if (val!=-1)
 	{
-		int* p=VALTOPNT(ref);
+		intptr_t* p=VALTOPNT(ref);
 		int code=VALTOINT(TABGET(p,REF_CODE));
 
 		if (code>=0)	// appel d'une fonction
@@ -330,7 +331,7 @@ int Compiler::parsegetpoint()
 			return MTLERR_SN;
 		}
 
-		int* p;
+		intptr_t* p;
 		if ((islabel(parser->token))
 			&&(p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 			&&(VALTOINT(TABGET(p,REF_CODE))==CODE_FIELD))
@@ -357,7 +358,7 @@ int Compiler::parsegetpoint()
 int Compiler::parseif()
 {
 	int k;
-	
+
 	if (k=parseexpression()) return k;	// lire la condition
 
 	if (k=unif(VALTOPNT(STACKGET(m,0)),VALTOPNT(TABGET(stdtypes,STDTYPE_I)))) return k;
@@ -398,7 +399,7 @@ int Compiler::parseif()
 int Compiler::parsewhile()
 {
 	int k;
-	
+
 	bc->addchar(OPnil);	// on empile le premier résultat
 
 	int bc_while=bc->getsize();		// on retient la position pour le saut 'while'
@@ -416,7 +417,7 @@ int Compiler::parsewhile()
 
 	bc->addchar(OPgoto);
 	bc->addshort(bc_while);	// on retourne à la condition
-	
+
 	bc->setshort(bc_end,bc->getsize());	// on règle le saut 'end'
 
 	return 0;
@@ -427,7 +428,7 @@ int Compiler::parsewhile()
 int Compiler::parsefor()
 {
 	int k;
-	
+
 	if (!parser->next(0))
 	{
 		PRINTF(m)(LOG_COMPILER,"Compiler : label expected (found EOF)\n");
@@ -526,14 +527,14 @@ int Compiler::parsematch()
 
 	if (k=parser->parsekeyword("with")) return k;
 
-	int end;
+	intptr_t end;
 	if (k=parsematchcons(&end)) return k;
 	STACKSET(m,1,STACKGET(m,0));
 	STACKDROP(m);
 	return 0;
 }
 
-int Compiler::parsematchcons(int* end)
+int Compiler::parsematchcons(intptr_t* end)
 {
 	int k;
 	if (k=parser->parsekeyword("(")) return k;
@@ -542,7 +543,7 @@ int Compiler::parsematchcons(int* end)
 		PRINTF(m)(LOG_COMPILER,"Compiler : constructor expected (found EOF)\n");
 		return MTLERR_SN;
 	}
-	int* p=NULL;
+	intptr_t* p=NULL;
 	if (!strcmp(parser->token,"_"))	// cas par défaut
 	{
 		bc->addchar(OPdrop);
@@ -629,7 +630,7 @@ int Compiler::parsematchcons(int* end)
 int Compiler::parselet()
 {
 	int k;
-	
+
 	if (k=parseexpression()) return k;	// lire la source
 	if (k=parser->parsekeyword("->")) return k;
 
@@ -655,7 +656,7 @@ int Compiler::parselet()
 int Compiler::parselocals()
 {
 	int k;
-	
+
 	if (!parser->next(0))
 	{
 		PRINTF(m)(LOG_COMPILER,"Compiler : term expected (found EOF)\n");
@@ -694,9 +695,9 @@ int Compiler::parselocals()
 	else if (!strcmp(parser->token,"("))
     {
 		if (k=createnodetype(TYPENAME_LIST)) return k;
-		int* plist=VALTOPNT(STACKGET(m,0));
+		intptr_t* plist=VALTOPNT(STACKGET(m,0));
 		if (k=createnodetype(TYPENAME_UNDEF)) return k;
-		int* pval=VALTOPNT(STACKGET(m,0));
+		intptr_t* pval=VALTOPNT(STACKGET(m,0));
 		TABSET(m,plist,TYPEHEADER_LENGTH,STACKGET(m,0));
 
 		while(1)	// la liste est dans la pile
@@ -778,7 +779,7 @@ int Compiler::parselocals()
 int Compiler::parseupdate()
 {
 	int k;
-	
+
 	if (k=parseexpression()) return k;	// lire la source
 	if (k=parser->parsekeyword("with")) return k;
 	if (k=parser->parsekeyword("[")) return k;
@@ -836,7 +837,7 @@ int Compiler::parseset()
 {
 	int k;
 	int val;
-	int ref;
+	intptr_t ref;
 	int opstore=-1;
 
 	if (!parser->next(0))
@@ -858,7 +859,7 @@ int Compiler::parseset()
 	else
 	{
 		val=-1;
-			int *p;
+			intptr_t *p;
 			if (p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 			{
 				ref=PNTTOVAL(p);
@@ -866,7 +867,7 @@ int Compiler::parseset()
 			}
 		if (val!=-1)
 		{
-			int* p=VALTOPNT(ref);
+			intptr_t* p=VALTOPNT(ref);
 			int code=VALTOINT(TABGET(p,REF_CODE));
 
 			if (code==CODE_VAR)	// variable
@@ -924,7 +925,7 @@ int Compiler::parsesetpoint(int local,int ind,int* opstore)
 		}
 
 		ind=-1;
-		int* p;
+		intptr_t* p;
 		if ((islabel(parser->token))
 			&&(p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 			&&(VALTOINT(TABGET(p,REF_CODE))==CODE_FIELD))
@@ -972,7 +973,7 @@ int Compiler::parsepntfun()
 		return MTLERR_SN;
 	}
 	val=-1;
-		int *p;
+		intptr_t *p;
 		if (p=searchref(PNTTOVAL(newpackage),parser->token))	// recherche dans les autres globales
 		{
 			ref=PNTTOVAL(p);
@@ -980,7 +981,7 @@ int Compiler::parsepntfun()
 		}
 	if (val!=-1)
 	{
-		int* p=VALTOPNT(ref);
+		intptr_t* p=VALTOPNT(ref);
 		int code=VALTOINT(TABGET(p,REF_CODE));
 
 		if (code>=0)
@@ -1012,7 +1013,7 @@ int Compiler::parsepntfun()
 int Compiler::parsecall()
 {
 	int k;
-	
+
 	if (k=parseexpression()) return k;	// lire la fonction
 
 	if ((parser->next(0))&&(!strcmp(parser->token,"[")))
@@ -1036,7 +1037,7 @@ int Compiler::parsecall()
 			parser->giveback();
 			if (k=parseexpression()) return k;
 			nval++;
-		}		
+		}
 	}
 	else
 	{

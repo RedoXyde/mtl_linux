@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -26,7 +27,7 @@ int Compiler::recglobal(int val,Prodbuffer *b)
 	}
 	else if (ISVALPNT(val))
 	{
-		int *p=VALTOPNT(val);
+		intptr_t* p=VALTOPNT(val);
 		if (HEADER_TYPE(p)==TYPE_TAB)
 		{
 			b->addint((TABLEN(p)<<2)+3);
@@ -62,7 +63,7 @@ int Compiler::recglobals(int vlab,Prodbuffer *b)
 
 //	printf("%d:%s ",n,STRSTART(VALTOPNT(TABGET(VALTOPNT(vlab),LABELLIST_NAME))));
 	// avant de l'enregistrer, on verifie si tout est correct
-	int* p;
+	intptr_t* p;
 	p = searchref_nosetused(PNTTOVAL(newpackage),STRSTART(VALTOPNT(TABGET(VALTOPNT(vlab),LABELLIST_NAME))));
 	if (NULL != p)
 		{
@@ -102,7 +103,7 @@ int Compiler::recbc(int vref,Prodbuffer *b,Prodbuffer *btab,int offset)
 		printf("%s is EMPTY !!!\n",STRSTART(VALTOPNT(TABGET(VALTOPNT(vref),REF_NAME))));
 		return -2;
 	}
-	int *fun=VALTOPNT(TABGET(VALTOPNT(vref),REF_VAL));
+	intptr_t *fun=VALTOPNT(TABGET(VALTOPNT(vref),REF_VAL));
 	int nloc=VALTOINT(TABGET(fun,FUN_NBLOCALS))-VALTOINT(TABGET(fun,FUN_NBARGS));
 	int nargs=VALTOINT(TABGET(fun,FUN_NBARGS));
 	int ipc=b->getsize()-offset;
@@ -166,7 +167,7 @@ int Compiler::gocompile(int type)
 
 		int sizebc=brelease->getsize();
 		brelease->addint(0);	// on prépare le champ pour la taille du bytecode
-		int* p=VALTOPNT(TABGET(newpackage,PACK_HACH));
+		intptr_t* p=VALTOPNT(TABGET(newpackage,PACK_HACH));
 		int vref=TABGET(p,TABLEN(p)-1);
 		int nfun=recbc(vref,brelease,btab,sizebc+4);
 		if (nfun<0) return nfun;
@@ -199,7 +200,7 @@ int Compiler::parsefile(int ifdef)
 							return MTLERR_SN;
             }
 					if (k=STRPUSH(m,parser->token)) return k;
-					int* s=VALTOPNT(STACKGET(m,0));
+					intptr_t* s=VALTOPNT(STACKGET(m,0));
 					if (k=parsefun())
 						{
 							PRINTF(m)(LOG_COMPILER,"Compiler : error compiling function '%s'\n",STRSTART(s));
@@ -215,7 +216,7 @@ int Compiler::parsefile(int ifdef)
 							return MTLERR_SN;
             }
 					if (k=STRPUSH(m,parser->token)) return k;
-					int* s=VALTOPNT(STACKGET(m,0));
+					intptr_t* s=VALTOPNT(STACKGET(m,0));
 
 					if (k=parsetype())
 						{
@@ -232,7 +233,7 @@ int Compiler::parsefile(int ifdef)
 							return MTLERR_SN;
             }
 					if (k=STRPUSH(m,parser->token)) return k;
-					int* s=VALTOPNT(STACKGET(m,0));
+					intptr_t* s=VALTOPNT(STACKGET(m,0));
 
 					if (k=parsevar())
 						{
@@ -251,7 +252,7 @@ int Compiler::parsefile(int ifdef)
 						return MTLERR_SN;
 					}
 					if (k=STRPUSH(m,parser->token)) return k;
-					int *s=VALTOPNT(STACKGET(m,0));
+					intptr_t *s=VALTOPNT(STACKGET(m,0));
 					if (k=parseconst())
 						{
 							PRINTF(m)(LOG_COMPILER,"Compiler : error compiling const '%s'\n",STRSTART(s));
@@ -267,7 +268,7 @@ int Compiler::parsefile(int ifdef)
 							return MTLERR_SN;
             }
 					if (k=STRPUSH(m,parser->token)) return k;
-					int* s=VALTOPNT(STACKGET(m,0));
+					intptr_t* s=VALTOPNT(STACKGET(m,0));
 
 					if (k=parseproto())
 						{
@@ -328,7 +329,8 @@ int Compiler::parseifdef(int ifndef)
 	}
 	int first=1;
 
-	int *ref, *type;
+	intptr_t
+  *ref, *type;
 	if ((!(ref = searchref(PNTTOVAL(newpackage),parser->token)))&&(!(type = searchtype(PNTTOVAL(newpackage),parser->token))))
 		first=0;
 
@@ -378,7 +380,7 @@ void displaybc(Memory* m,char* src);
 int Compiler::parsefun()
 {
 	int k;
-	int* type_result;
+	intptr_t* type_result;
 //	PRINTF(m)(LOG_DEVCORE,"fonction %s\n",STRSTART(VALTOPNT(STACKGET(m,0))));
 
 	char* name=STRSTART(VALTOPNT(STACKGET(m,0)));
@@ -456,7 +458,7 @@ int Compiler::parsefun()
 	STACKDROP(m);
 	// [locals globals name]
 	// créer le bloc programme
-	int* fun=MALLOCCLEAR(m,FUN_LENGTH);
+	intptr_t* fun=MALLOCCLEAR(m,FUN_LENGTH);
 	if (!fun) return MTLERR_OM;
 	TABSET(m,newref,REF_VAL,PNTTOVAL(fun));
 
@@ -607,13 +609,13 @@ int Compiler::parseproto()
 		int vp=STACKGET(m,0);
 		if (vp!=NIL)
 		{
-			int* p=VALTOPNT(vp);
+			intptr_t* p=VALTOPNT(vp);
 			if (TABGET(p,TYPEHEADER_CODE)==INTTOVAL(TYPENAME_FUN))
 			{
 				vp=TABGET(p,TYPEHEADER_LENGTH);
 				if (vp!=NIL)
 				{
-					int* p=VALTOPNT(vp);
+					intptr_t* p=VALTOPNT(vp);
 					if (TABGET(p,TYPEHEADER_CODE)==INTTOVAL(TYPENAME_TUPLE))
 					{
 						nbarg=TABLEN(p)-TYPEHEADER_LENGTH;
@@ -783,7 +785,7 @@ int Compiler::parsestruct()
 			if (k=STRPUSH(m,parser->token)) return k;
 
 			// on crée le bloc champ
-			int* newfield=MALLOCCLEAR(m,REF_LENGTH);
+			intptr_t* newfield=MALLOCCLEAR(m,REF_LENGTH);
 			if (!newfield) return MTLERR_OM;
 			TABSET(m,newfield,REF_NAME,STACKPULL(m));
 			TABSET(m,newfield,REF_CODE,INTTOVAL(CODE_FIELD));
@@ -864,7 +866,7 @@ int Compiler::parsesum()
 			if (k=STRPUSH(m,parser->token)) return k;
 
 			// on crée le bloc champ
-			int* newcons=MALLOCCLEAR(m,REF_LENGTH);
+			intptr_t* newcons=MALLOCCLEAR(m,REF_LENGTH);
 			if (!newcons) return MTLERR_OM;
 			TABSET(m,newcons,REF_NAME,STACKPULL(m));
 			if (k=STACKPUSH(m,PNTTOVAL(newcons))) return MTLERR_OM;	// [newcons local name]

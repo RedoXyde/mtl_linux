@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -20,9 +21,9 @@
 int Compiler::parseval()
 {
 	int k;
-	
+
 	if (k=parseval3()) return k;
-	
+
 	if (!parser->next(0)) return 0;
 	if (strcmp(parser->token,"::"))
     {
@@ -38,7 +39,7 @@ int Compiler::parseval()
 	if (k=unif(VALTOPNT(STACKGET(m,1)),VALTOPNT(STACKGET(m,2)))) return k;	// unification list
 	STACKSET(m,4,STACKGET(m,1));	// remplacement du type
 
-	int* p=MALLOCCLEAR(m,LIST_LENGTH);	// création du tuple liste
+	intptr_t* p=MALLOCCLEAR(m,LIST_LENGTH);	// création du tuple liste
 	if (!p) return MTLERR_OM;
 	TABSET(m,p,LIST_VAL,STACKGET(m,5));
 	TABSET(m,p,LIST_NEXT,STACKGET(m,3));
@@ -51,7 +52,7 @@ int Compiler::parseval()
 int Compiler::parseval3()
 {
 	int k,op,typ;
-	
+
 	if (k=parseval4()) return k;
 	while(1)
     {
@@ -66,7 +67,7 @@ int Compiler::parseval3()
 		if (k=parseval4()) return k;
 		if (op==OPadd) STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))+VALTOINT(STACKGET(m,1))));
 		else if (op==OPsub) STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))-VALTOINT(STACKGET(m,1))));
-		int* ptyp;
+		intptr_t* ptyp;
 		if (typ==1) ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
 		if (k=unif(VALTOPNT(STACKGET(m,0)),ptyp)) return k;
 		if (k=unif(VALTOPNT(STACKGET(m,2)),ptyp)) return k;
@@ -77,7 +78,7 @@ int Compiler::parseval3()
 int Compiler::parseval4()
 {
 	int k,op,typ;
-	
+
 	if (k=parseval5()) return k;
 	while(1)
     {
@@ -99,7 +100,7 @@ int Compiler::parseval4()
 			STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))/VALTOINT(STACKGET(m,1))));
 		}
 		else if (op==OPmod) STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))%VALTOINT(STACKGET(m,1))));
-		int* ptyp;
+		intptr_t* ptyp;
 		if (typ==1) ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
 		if (k=unif(VALTOPNT(STACKGET(m,0)),ptyp)) return k;
 		if (k=unif(VALTOPNT(STACKGET(m,2)),ptyp)) return k;
@@ -110,7 +111,7 @@ int Compiler::parseval4()
 int Compiler::parseval5()
 {
 	int k,op;
-	
+
 	if (k=parseval6()) return k;
 	while(1)
     {
@@ -133,7 +134,7 @@ int Compiler::parseval5()
 		else if (op==OPshl) STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))<<VALTOINT(STACKGET(m,1))));
 		else if (op==OPshr) STACKSET(m,3,INTTOVAL(VALTOINT(STACKGET(m,3))>>VALTOINT(STACKGET(m,1))));
 
-		int* ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
+		intptr_t* ptyp=VALTOPNT(TABGET(stdtypes,STDTYPE_I));
 		if (k=unif(VALTOPNT(STACKGET(m,0)),ptyp)) return k;
 		if (k=unif(VALTOPNT(STACKGET(m,2)),ptyp)) return k;
 		STACKDROPN(m,2);
@@ -145,7 +146,7 @@ int Compiler::parseval6()
 	int k;
 
 	if (!parser->next(0)) return parseval7();
-	
+
 	if (!strcmp(parser->token,"-"))
 	{
 		if (!parser->next(0)) return parseval6();
@@ -200,7 +201,7 @@ int Compiler::parseval7()
 			}
 			if (!strcmp(parser->token,"]"))
 			{
-				int* p=MALLOCCLEAR(m,nval);	// création du tuple liste
+				intptr_t* p=MALLOCCLEAR(m,nval);	// création du tuple liste
 				if (!p) return MTLERR_OM;
 				int i;
 				for(i=0;i<nval;i++) TABSET(m,p,i,STACKGET(m,(nval-i)*2-1));
@@ -222,7 +223,7 @@ int Compiler::parseval7()
 		if (k=createnodetype(TYPENAME_TAB)) return k;	// type final
 		if (k=createnodetype(TYPENAME_UNDEF)) return k;
 		TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH,STACKGET(m,0));
-		int* p=VALTOPNT(STACKPULL(m));
+		intptr_t* p=VALTOPNT(STACKPULL(m));
 
 		while(1)
 		{

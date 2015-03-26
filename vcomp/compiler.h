@@ -20,7 +20,7 @@ class Compiler
 private:
 	Memory* m;
 	int systempackage;
-	int* stdtypes;
+	intptr_t* stdtypes;
 
 	Prodbuffer* bc;	// structure de production de bytecode
 
@@ -28,8 +28,8 @@ private:
 
 
 	Parser* parser;
-	int* newpackage;
-	int* newref;
+	intptr_t* newpackage;
+	intptr_t* newref;
 	int globals;
 	int locals;
 	int nblocals;
@@ -37,56 +37,56 @@ private:
 	int ifuns;
 
 	// typage
-	int createnodetypecore(const char* name);
-	int createnodetypecore(int name);
-	int createnodetype(int type);
-	int createnodetuple(int size);
-	int createnodetupleval(int size);
+	intptr_t createnodetypecore(const char* name);
+	intptr_t createnodetypecore(int name);
+	intptr_t createnodetype(int type);
+	intptr_t createnodetuple(int size);
+	intptr_t createnodetupleval(int size);
 
-	int* actualtype(int* p);
+	intptr_t* actualtype(intptr_t* p);
 
-	int parsegraph(Parser* p,int env,int mono,int rec,int labels,int newvars,int* rnode);
-	int parse_rnode(int* p);
+	int parsegraph(Parser* p,int env,int mono,int rec,int labels,int newvars,intptr_t* rnode);
+	intptr_t parse_rnode(intptr_t* p);
 
-	int creategraph(Parser* p,int env,int mono);
-	int creategraph(Parser* p,int env,int mono,int labels);
-	int creategraph(const char* src,int env,int mono);
+	intptr_t creategraph(Parser* p,int env,int mono);
+	intptr_t creategraph(Parser* p,int env,int mono,int labels);
+	intptr_t creategraph(const char* src,int env,int mono);
 
-	int recechograph(Prodbuffer *output,int* p,int rec,int labels);
+	int recechograph(Prodbuffer *output,intptr_t* p,int rec,int labels);
 
-	int reccopytype(int* p);
-	int recresetcopy(int* p);
+	intptr_t reccopytype(intptr_t* p);
+	intptr_t recresetcopy(intptr_t* p);
 
-	int recgoweak(int* p);
+	intptr_t recgoweak(intptr_t* p);
 
-	int restoreactual(int* t,int* s,int vt,int vs,int k);
-	int recunif(int* x,int* y);
-	int unif(int* x,int* y);
-	int unif_argfun();
+	int restoreactual(intptr_t* t,intptr_t* s,int vt,int vs,int k);
+	intptr_t recunif(intptr_t* x,intptr_t* y);
+	intptr_t unif(intptr_t* x,intptr_t* y);
+	intptr_t unif_argfun();
 
-	int unifbigger(int* x,int* y);
+	intptr_t unifbigger(intptr_t* x,intptr_t* y);
 
-	int* argsfromfun(int *f);
+	intptr_t* argsfromfun(intptr_t *f);
 
-	void echonode(int code,int* p);
+	void echonode(int code,intptr_t* p);
 	// packages
 	int hash(const char* name);
-	int createpackage(const char* name,int loghach);
-	void addreftopackage(int* ref,int* package);
-	int* searchtype(int env,const char* name);
-	int* searchemptytype(int env,const char* name);
+	intptr_t createpackage(const char* name,int loghach);
+	void addreftopackage(intptr_t* ref,intptr_t* package);
+	intptr_t* searchtype(int env,const char* name);
+	intptr_t* searchemptytype(int env,const char* name);
 
 	void dumppackage(int env);
 
-	int searchbytype(int env,int type);
+	intptr_t searchbytype(int env,int type);
 
 	// liste de labels
-	int addlabel(int base,const char* name,int val,int ref);
-	int nblabels(int base);
-	void removenlabels(int base,int n);
-	int searchlabel_byname(int base,const char* name,int* val,int* ref);
-	int searchlabel_byval(int base,int val, char** name);
-	int* tuplefromlabels(int base);
+	intptr_t addlabel(intptr_t base,const char* name,int val,intptr_t ref);
+	int nblabels(intptr_t base);
+	void removenlabels(intptr_t base,int n);
+	int searchlabel_byname(intptr_t base,const char* name,int* val,intptr_t* ref);
+	int searchlabel_byval(intptr_t base,int val, char** name);
+	intptr_t* tuplefromlabels(intptr_t base);
 
 	// compilation
 	int parsefile(int ifdef);
@@ -95,8 +95,8 @@ private:
 	int parseproto();
 	int parseifdef(int ifndef);
 	int skipifdef();
-	int fillproto(int env,int* fun);
-	int findproto(int env,int* fun);
+	intptr_t fillproto(int env,intptr_t* fun);
+	intptr_t findproto(int env,intptr_t* fun);
 	int parsetype();
 	int parsestruct();
 	int parsesum();
@@ -123,9 +123,9 @@ private:
 	int parsecall();
 	int parselocals();
 	int parsestring();
-	int parsefields(int* p);
+	int parsefields(intptr_t* p);
 	int parsematch();
-	int parsematchcons(int* end);
+	int parsematchcons(intptr_t* end);
 
 	int parsegetpoint();
 	int parsesetpoint(int local,int ind,int* opstore);
@@ -145,7 +145,7 @@ private:
 	void bc_byte_or_int(int val,int opbyte,int opint);
 	void bcint_byte_or_int(int val);
 	// autres
-	int addstdlibcore();
+	intptr_t addstdlibcore();
 	int addstdlibstr();
 	int addstdlibbuf();
 	int addstdlibfiles();
@@ -160,19 +160,19 @@ public:
 	~Compiler();
 	int start();
 	void stop();
-	int addnative(int nref, const char** nameref, int* valref
+	intptr_t addnative(int nref, const char** nameref, int* valref
               , int* coderef, const char** typeref,void* arg);
 
 	int gocompile(int type); // [filename/src packages] -> [packages]
 	int getsystempackage();
 
-	int* searchref(int env,char* name);
-	int* searchref_nosetused(int env,char* name);
+	intptr_t* searchref(int env,char* name);
+	intptr_t* searchref_nosetused(int env,char* name);
 
 
-	int echograph(Prodbuffer *output,int* p);
-	int copytype(int* p);
-	int recunifbigger(int* x,int* y);
+	intptr_t echograph(Prodbuffer *output,intptr_t* p);
+	intptr_t copytype(intptr_t* p);
+	intptr_t recunifbigger(intptr_t* x,intptr_t* y);
 
 };
 

@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "param.h"
 #include "terminal.h"
@@ -41,7 +42,7 @@ void Stack::dump(FILE *f)
 void Stack::initialize(int s)
 {
 	size=s;
-	base=new int[size];
+	base=new intptr_t[size];
 	pp=base;
 }
 
@@ -51,7 +52,7 @@ int Stack::bigger(Memory* m)
 
 	size*=2;
 
-	int* newbase=new int[size];
+	intptr_t* newbase=new intptr_t[size];
 	if (!newbase)
 	{
 		PRINTF(m)(LOG_RUNTIME,"Stack : out of Stack Memory\n");
@@ -69,12 +70,12 @@ int Stack::bigger(Memory* m)
 
 
 // ajout d'une racine
-int Memory::addroot(int *p)
+intptr_t Memory::addroot(intptr_t *p)
 {
-	int k;
+	intptr_t k;
 
 	if (k=push(PNTTOVAL(p))) return k;
-	int* r=malloc(LIST_LENGTH,TYPE_TAB);
+	intptr_t* r=malloc(LIST_LENGTH,TYPE_TAB);
 	TABSET(this,r,LIST_VAL,PNTTOVAL(p));
 	TABSET(this,r,LIST_NEXT,root);
 	root=PNTTOVAL(r);
@@ -83,13 +84,13 @@ int Memory::addroot(int *p)
 }
 
 // suppression d'une racine
-void Memory::removeroot(int *p)
+void Memory::removeroot(intptr_t *p)
 {
-	int* last=NULL;	// pointeur vers le précédent maillon de la liste
-	int vq=root;
+	intptr_t* last=NULL;	// pointeur vers le précédent maillon de la liste
+	intptr_t vq=root;
 	while(vq!=NIL)
 	{
-		int* q=VALTOPNT(vq);
+		intptr_t* q=VALTOPNT(vq);
 		if (TABGET(q,LIST_VAL)==PNTTOVAL(p))
 		{
 			if (last) TABSET(this,last,LIST_NEXT,TABGET(q,LIST_NEXT));
@@ -145,12 +146,12 @@ void Memory::dump()
 }
 
 
-int* Memory::malloc(int size,int type)
+intptr_t* Memory::malloc(int size,int type)
 {
-	int *p=NULL;
+	intptr_t *p=NULL;
 
 	int blocsize=size+HEADER_LENGTH;
-	p=new int[blocsize];
+	p=new intptr_t[blocsize];
 	if (!p) return p;
 
 	HEADERSETSIZETYPE(p,blocsize,type);
@@ -160,9 +161,9 @@ int* Memory::malloc(int size,int type)
 
 
 
-int* Memory::mallocClear(int size)
+intptr_t* Memory::mallocClear(int size)
 {
-	int* p=malloc(size,TYPE_TAB);
+	intptr_t* p=malloc(size,TYPE_TAB);
 	if (!p) return p;
 	int i;
 	for(i=0;i<size;i++) TABSET(this,p,i,NIL);
@@ -170,43 +171,43 @@ int* Memory::mallocClear(int size)
 }
 
 // allocation de type TYPE_EXT (la fonction fun(pnt) sera appelée lors de l'oubli du bloc)
-int* Memory::mallocExternal(void* pnt,FORGET fun)
+intptr_t* Memory::mallocExternal(void* pnt,FORGET fun)
 {
-	int* p=malloc(2,TYPE_EXT);
+	intptr_t* p=malloc(2,TYPE_EXT);
 	if (!p) return p;
-	TABSET(this,p,0,*((int*)pnt));
-	TABSET(this,p,1,*((int*)fun));
+	TABSET(this,p,0,*((intptr_t*)pnt));
+	TABSET(this,p,1,*((intptr_t*)fun));
 	return p;
 }
 
 // allocation de type TYPE_EXT (la fonction fun(pnt) sera appelée lors de l'oubli du bloc)
-int Memory::pushExternal(void* pnt,FORGET fun)
+intptr_t Memory::pushExternal(void* pnt,FORGET fun)
 {
-	int* p=mallocExternal(pnt,fun);
+	intptr_t* p=mallocExternal(pnt,fun);
 	if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-int* Memory::storenosrc(int size)
+intptr_t* Memory::storenosrc(int size)
 {
 	// calcul de la taille d'un bloc pouvant contenir une certain nombre de caractères
 	// il faut 1 mot pour la taille et un octet nul final
 	int l=2+(size>>2);
 
-	int* p=malloc(l,TYPE_BINARY);
+	intptr_t* p=malloc(l,TYPE_BINARY);
 	if (!p) return p;
 	STRSETLEN(p,size);
 	STRSTART(p)[size]=0;
 	return p;
 }
 
-int* Memory::storebinary(const char *src,int size)
+intptr_t* Memory::storebinary(const char *src,int size)
 {
 	// calcul de la taille d'un bloc pouvant contenir une certain nombre de caractères
 	// il faut 1 mot pour la taille et un octet nul final
 	int l=2+(size>>2);
 
-	int* p=malloc(l,TYPE_BINARY);
+	intptr_t* p=malloc(l,TYPE_BINARY);
 	if (!p) return p;
 	STRSETLEN(p,size);
 	memcpy(STRSTART(p),src,size);
@@ -214,14 +215,14 @@ int* Memory::storebinary(const char *src,int size)
 	return p;
 }
 
-int* Memory::storestring(const char *src)
+intptr_t* Memory::storestring(const char *src)
 {
 	return storebinary(src,strlen(src));
 }
 
 int Memory::deftab(int size)
 {
-	int* p=malloc(size,TYPE_TAB);
+	intptr_t* p=malloc(size,TYPE_TAB);
 	if (!p) return MTLERR_OM;
 	int i; for(i=size-1;i>=0;i--) TABSET(this,p,i,STACKPULL(this));
 	return push(PNTTOVAL(p));

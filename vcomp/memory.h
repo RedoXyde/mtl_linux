@@ -39,9 +39,9 @@ private:
 public:
 	Stack();
 	~Stack();
-	int size;	// taille du bloc alloué
-	int* base;	// début de la pile
-	int* pp;	// pointeur de pile
+	intptr_t size;	// taille du bloc alloué
+	intptr_t* base;	// début de la pile
+	intptr_t* pp;	// pointeur de pile
 
 	void initialize(int s);
 	int bigger(Memory* m);
@@ -75,28 +75,28 @@ public:
 	int start();
 	void stop();
 
-	int addroot(int* p);
-	void removeroot(int *p);
+	intptr_t addroot(intptr_t* p);
+	void removeroot(intptr_t *p);
 
-	int* malloc(int size,int type);	// allocation (type vaut TYPE_BINARY ou TYPE_TAB)
-	int* mallocClear(int size);	// allocation de type TYPE_TAB avec initialisation à NIL
-	int* mallocExternal(void* pnt,FORGET fun);	// allocation de type TYPE_EXT (la fonction fun(pnt) sera appelée lors de l'oubli du bloc)
-	int pushmalloc(int size,int type);	// allocation (type vaut TYPE_BINARY ou TYPE_TAB)
-	int pushmallocClear(int size);	// allocation de type TYPE_TAB avec initialisation à NIL
-	int pushExternal(void* pnt,FORGET fun);
+	intptr_t* malloc(int size,int type);	// allocation (type vaut TYPE_BINARY ou TYPE_TAB)
+	intptr_t* mallocClear(int size);	// allocation de type TYPE_TAB avec initialisation à NIL
+	intptr_t* mallocExternal(void* pnt,FORGET fun);	// allocation de type TYPE_EXT (la fonction fun(pnt) sera appelée lors de l'oubli du bloc)
+	intptr_t pushmalloc(int size,int type);	// allocation (type vaut TYPE_BINARY ou TYPE_TAB)
+	intptr_t pushmallocClear(int size);	// allocation de type TYPE_TAB avec initialisation à NIL
+	intptr_t pushExternal(void* pnt,FORGET fun);
 
-	int push(int val);
-	void tabset(int* p,int i,int val);
-	void stackset(int* p,int val);
+	intptr_t push(int val);
+	void tabset(intptr_t* p,int i,int val);
+	void stackset(intptr_t* p,int val);
 
 
-	int* storestring(const char* src);
-	int* storebinary(const char* src,int size);
-	int* storenosrc(int size);
-	int pushstring(const char* src);
-	int pushbinary(char* src,int size);
-	int pushnosrc(int size);
-	int pushpnt(void* pnt);
+	intptr_t* storestring(const char* src);
+	intptr_t* storebinary(const char* src,int size);
+	intptr_t* storenosrc(int size);
+	intptr_t pushstring(const char* src);
+	intptr_t pushbinary(char* src,int size);
+	intptr_t pushnosrc(int size);
+	intptr_t pushpnt(void* pnt);
 
 	int deftab(int size);
 
@@ -192,11 +192,11 @@ void AbortMetal(Memory* m,int donotstop);
 #define TYPE_TAB 1	// type table pour allocation
 #define TYPE_EXT 2	// type externe pour allocation
 
-#define PNTTOVAL(p) (1+(*(int*)(p)))	// conversion pointeur vers mot metal
+#define PNTTOVAL(p) (1+((intptr_t)(p)))	// conversion pointeur vers mot metal
 #define INTTOVAL(i) ((i)<<1)	// conversion entier vers mot metal
 #define FLOATTOVAL(v) ((~1)&(*(int*)(&(v))))	// conversion flottant vers mot metal
 
-#define VALTOPNT(v) ((int*)((v)-1))	// conversion mot metal vers pointeur
+#define VALTOPNT(v) ((intptr_t*)((intptr_t)(v)-1))	// conversion mot metal vers pointeur
 #define VALTOINT(v) ((v)>>1)	// conversion mot metal vers entier
 #define VALTOFLOAT(v) (*((mtl_float*)(&(v))))	// conversion mot metal vers flottant
 
@@ -264,62 +264,62 @@ void AbortMetal(Memory* m,int donotstop);
 #define LOG_COMPILER 8
 #define LOG_USER 16
 
-inline int Memory::push(int val)
+inline intptr_t Memory::push(int val)
 {
 	*(++stack.pp)=val;
 	if ((stack.pp-stack.base)>=stack.size-1)
 	{
-		int k; if ((k=stack.bigger(this))) return k;
+		intptr_t k; if ((k=stack.bigger(this))) return k;
 //	term->printf(LOG_DEVCORE,"## bigger stack %d\n",stack.size);
 //	stackprint(0);
 	}
 	return 0;
 }
 
-inline void Memory::tabset(int* p,int i,int val)
+inline void Memory::tabset(intptr_t* p,int i,int val)
 {
 	p[HEADER_LENGTH+i]=val;	// règle une valeur d'une table
 }
 
-inline void Memory::stackset(int* p,int val)
+inline void Memory::stackset(intptr_t* p,int val)
 {
 	*p=val;
 }
 
-inline int Memory::pushmalloc(int size,int type)
+inline intptr_t Memory::pushmalloc(int size,int type)
 {
-	int* p=malloc(size,type); if (!p) return MTLERR_OM;
+	intptr_t* p=malloc(size,type); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushmallocClear(int size)
+inline intptr_t Memory::pushmallocClear(int size)
 {
-	int* p=mallocClear(size); if (!p) return MTLERR_OM;
+	intptr_t* p=mallocClear(size); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushstring(const char* src)
+inline intptr_t Memory::pushstring(const char* src)
 {
-	int* p=storestring(src); if (!p) return MTLERR_OM;
+	intptr_t* p=storestring(src); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushbinary(char* src,int size)
+inline intptr_t Memory::pushbinary(char* src,int size)
 {
-	int* p=storebinary(src,size); if (!p) return MTLERR_OM;
+	intptr_t* p=storebinary(src,size); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushnosrc(int size)
+inline intptr_t Memory::pushnosrc(int size)
 {
-	int* p=storenosrc(size); if (!p) return MTLERR_OM;
+	intptr_t* p=storenosrc(size); if (!p) return MTLERR_OM;
 	return push(PNTTOVAL(p));
 }
 
-inline int Memory::pushpnt(void* pnt)
+inline intptr_t Memory::pushpnt(void* pnt)
 {
-	int* p=malloc(1,TYPE_BINARY); if (!p) return MTLERR_OM;
-	*(BINSTART(p))=*((int*)pnt);
+	intptr_t* p=malloc(1,TYPE_BINARY); if (!p) return MTLERR_OM;
+	*(BINSTART(p))=((intptr_t)pnt);
 	return push(PNTTOVAL(p));
 }
 
