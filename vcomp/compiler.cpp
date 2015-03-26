@@ -71,7 +71,7 @@ int Compiler::getsystempackage()
 }
 
 // crée et empile un package
-int Compiler::createpackage(char* name,int loghach)
+int Compiler::createpackage(const char* name,int loghach)
 {
 	int k;
 	if (k=PUSHMALLOCCLEAR(m,PACK_LENGTH)) return k;
@@ -87,7 +87,7 @@ int Compiler::createpackage(char* name,int loghach)
 }
 
 // calcule la fonction de hachage d'une chaine (entre 0 et 255)
-int Compiler::hash(char* name)
+int Compiler::hash(const char* name)
 {
 	int v=0;
 	int i=0;
@@ -121,7 +121,7 @@ void Compiler::addreftopackage(int* ref,int* package)
 }
 
 // recherche d'un type dans un environnement
-int* Compiler::searchtype(int env,char* name)
+int* Compiler::searchtype(int env,const char* name)
 {
 	int v=hash(name);
 	while(env!=NIL)
@@ -142,7 +142,7 @@ int* Compiler::searchtype(int env,char* name)
 }
 
 // recherche d'un type non défini dans un environnement
-int* Compiler::searchemptytype(int env,char* name)
+int* Compiler::searchemptytype(int env,const char* name)
 {
 	int v=hash(name);
 	while(env!=NIL)
@@ -307,7 +307,7 @@ int* Compiler::searchref_nosetused(int env,char* name)
 
 
 // ajout d'un label dans une liste de labels
-int Compiler::addlabel(int base,char* name,int val,int ref)
+int Compiler::addlabel(int base,const char* name,int val,int ref)
 {
 	int k;
 	int* p=MALLOCCLEAR(m,LABELLIST_LENGTH);
@@ -345,7 +345,7 @@ void Compiler::removenlabels(int base,int n)
 }
 
 // recherche d'un label dans une liste de labels
-int Compiler::searchlabel_byname(int base,char* name,int* val,int* ref)
+int Compiler::searchlabel_byname(int base,const char* name,int* val,int* ref)
 {
 	int vlab=STACKGETFROMREF(m,base,0);
 	while(vlab!=NIL)
@@ -363,7 +363,7 @@ int Compiler::searchlabel_byname(int base,char* name,int* val,int* ref)
 }
 
 // recherche d'un label dans une liste de labels
-int Compiler::searchlabel_byval(int base,int val,char** name)
+int Compiler::searchlabel_byval(int base,int val, char** name)
 {
 	int vlab=STACKGETFROMREF(m,base,0);
 	while(vlab!=NIL)

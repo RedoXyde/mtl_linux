@@ -70,22 +70,22 @@ private:
 
 	void echonode(int code,int* p);
 	// packages
-	int hash(char* name);
-	int createpackage(char* name,int loghach);
+	int hash(const char* name);
+	int createpackage(const char* name,int loghach);
 	void addreftopackage(int* ref,int* package);
-	int* searchtype(int env,char* name);
-	int* searchemptytype(int env,char* name);
+	int* searchtype(int env,const char* name);
+	int* searchemptytype(int env,const char* name);
 
 	void dumppackage(int env);
 
 	int searchbytype(int env,int type);
 
 	// liste de labels
-	int addlabel(int base,char* name,int val,int ref);
+	int addlabel(int base,const char* name,int val,int ref);
 	int nblabels(int base);
 	void removenlabels(int base,int n);
-	int searchlabel_byname(int base,char* name,int* val,int* ref);
-	int searchlabel_byval(int base,int val,char** name);
+	int searchlabel_byname(int base,const char* name,int* val,int* ref);
+	int searchlabel_byval(int base,int val, char** name);
 	int* tuplefromlabels(int base);
 
 	// compilation

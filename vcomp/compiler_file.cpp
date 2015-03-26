@@ -187,7 +187,7 @@ int Compiler::gocompile(int type)
 int Compiler::parsefile(int ifdef)
 {
 	int k;
-	
+
 	while(parser->next(0))
     {
 			if (!strcmp(parser->token,"fun"))
@@ -459,7 +459,7 @@ int Compiler::parsefun()
 	int* fun=MALLOCCLEAR(m,FUN_LENGTH);
 	if (!fun) return MTLERR_OM;
 	TABSET(m,newref,REF_VAL,PNTTOVAL(fun));
-	
+
 	TABSET(m,fun,FUN_NBARGS,INTTOVAL(narg));
 	TABSET(m,fun,FUN_NBLOCALS,INTTOVAL(nblocals));
 
@@ -630,18 +630,18 @@ int Compiler::parseproto()
 	else if (isdecimal(parser->token))
 	{
 		nbarg=mtl_atoi(parser->token);
-		
+
 		if (k=createnodetype(TYPENAME_FUN)) return k;
-		
+
 		int i;for(i=0;i<nbarg;i++) if (k=createnodetype(TYPENAME_WEAK)) return k;
 		if (k=createnodetuple(nbarg)) return k;
 
 		TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH,STACKGET(m,0));	// attachement du noeud tuple au noeud fun
 		STACKDROP(m);
-		
+
 		if (k=createnodetype(TYPENAME_WEAK)) return k;	// noeud résultat
 		TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH+1,STACKGET(m,0));	// attachement du noeud resultat au noeud fun
-		STACKDROP(m);		
+		STACKDROP(m);
 	}
 	if (nbarg<0)
 	{
@@ -781,7 +781,7 @@ int Compiler::parsestruct()
 		if (islabel(parser->token))
 		{
 			if (k=STRPUSH(m,parser->token)) return k;
-			
+
 			// on crée le bloc champ
 			int* newfield=MALLOCCLEAR(m,REF_LENGTH);
 			if (!newfield) return MTLERR_OM;
@@ -797,13 +797,13 @@ int Compiler::parsestruct()
 			TABSET(m,newfield,REF_VAL,STACKPULL(m));
 
 			TABSET(m,newref,REF_VAL,INTTOVAL(1+VALTOINT(TABGET(newref,REF_VAL))));	// incrémentation
-			
+
 			if (k=createnodetype(TYPENAME_FUN)) return k;
 			if (k=STACKPUSH(m,TABGET(newref,REF_TYPE))) return k;
 			if (k=createnodetuple(1)) return k;
 			TABSET(m,VALTOPNT(STACKGET(m,1)),TYPEHEADER_LENGTH,STACKGET(m,0));	// attachement du noeud tuple au noeud fun
 			STACKDROP(m);
-			
+
 			if ((!parser->next(0))||(strcmp(parser->token,":")))
 			{
 				parser->giveback();
@@ -862,7 +862,7 @@ int Compiler::parsesum()
 		if (islabel(parser->token))
 		{
 			if (k=STRPUSH(m,parser->token)) return k;
-			
+
 			// on crée le bloc champ
 			int* newcons=MALLOCCLEAR(m,REF_LENGTH);
 			if (!newcons) return MTLERR_OM;
@@ -873,7 +873,7 @@ int Compiler::parsesum()
 			// [local name]
 			TABSET(m,newcons,REF_VAL,TABGET(newref,REF_VAL));
 			TABSET(m,newref,REF_VAL,INTTOVAL(1+VALTOINT(TABGET(newref,REF_VAL))));	// incrémentation
-			
+
 			if (k=createnodetype(TYPENAME_FUN)) return k;
 
 			if ((parser->next(0))&&((!strcmp(parser->token,"|"))||(!strcmp(parser->token,";;"))))
