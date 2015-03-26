@@ -8,15 +8,15 @@
 var src="firmware.sim";;
 
 
-var firmwarelimit="-violet-";;	
+var firmwarelimit="-violet-";;
 fun bin4toi s=
-	((strnthchar s 0)<<24)+((strnthchar s 1)<<16)+((strnthchar s 2)<<8)+(strnthchar s 3);;
+	((strget s 0)<<24)+((strget s 1)<<16)+((strget s 2)<<8)+(strget s 3);;
 
 fun itoh8 x=strright strcat "00000000" itoh x 8;;
 fun itoh2 x=strright strcat "00" itoh x 2;;
 
 fun hexdata data i imax=
-	if i<imax then (itoh2 strnthchar data i)::hexdata data i+1 imax;;
+	if i<imax then (itoh2 strget data i)::hexdata data i+1 imax;;
 
 fun main=
 	let load src -> data in
@@ -27,5 +27,4 @@ fun main=
 	save strcatlist firmwarelimit::(itoh8 2*len)::binhex::firmwarelimit::nil strcat src ".txt";
 	Secholn "done";
 	0;;
-	
-	
+
