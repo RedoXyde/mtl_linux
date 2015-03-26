@@ -1,3 +1,7 @@
+
+CXXFLAGS=-DVSIMU -g
+CFLAGS=-DVSIMU -g  # -std=c99
+
 OBJS = \
 	bootstrap.o \
 	compiler_file.o \

@@ -37,7 +37,7 @@ private:
 	int ifuns;
 
 	// typage
-	int createnodetypecore(char* name);
+	int createnodetypecore(const char* name);
 	int createnodetypecore(int name);
 	int createnodetype(int type);
 	int createnodetuple(int size);
@@ -50,7 +50,7 @@ private:
 
 	int creategraph(Parser* p,int env,int mono);
 	int creategraph(Parser* p,int env,int mono,int labels);
-	int creategraph(char* src,int env,int mono);
+	int creategraph(const char* src,int env,int mono);
 
 	int recechograph(Prodbuffer *output,int* p,int rec,int labels);
 
@@ -160,8 +160,8 @@ public:
 	~Compiler();
 	int start();
 	void stop();
-	int addnative(int nref, char** nameref, int* valref
-              , int* coderef, char** typeref,void* arg);
+	int addnative(int nref, const char** nameref, int* valref
+              , int* coderef, const char** typeref,void* arg);
 
 	int gocompile(int type); // [filename/src packages] -> [packages]
 	int getsystempackage();

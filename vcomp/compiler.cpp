@@ -398,8 +398,8 @@ int* Compiler::tuplefromlabels(int base)
 
 
 // ajoute des fonctions à un package
-int Compiler::addnative(int nref, char** nameref, int* valref
-              , int* coderef, char** typeref,void* arg)
+int Compiler::addnative(int nref, const char** nameref, int* valref
+              , int* coderef, const char** typeref,void* arg)
 {
 	int i,k;
 

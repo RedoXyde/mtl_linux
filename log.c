@@ -1,7 +1,7 @@
 /**
 	 Routines simples pour pouvoir logger les sorties du compilateur
 */
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -208,7 +208,7 @@ int my_printf_set_logfile(const char *filename)
 			free(outfilename);
 			outfilename=NULL;
 		}
-	
+
 	outstream=f;
 	outfilename=strdup(filename);
 	current_log_size=0;

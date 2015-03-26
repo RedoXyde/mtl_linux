@@ -18,7 +18,7 @@
 // types
 
 // création d'un noeud de type basique (éventuellement paramétrique)
-int Compiler::createnodetypecore(char* name)
+int Compiler::createnodetypecore(const char* name)
 {
 	int k;
 
@@ -97,7 +97,7 @@ int* Compiler::actualtype(int* p)
 int Compiler::parsegraph(Parser* p,int env,int mono,int rec,int labels,int newvars,int* rnode)
 {
 	int k,n;
-	
+
 	if (!p->next(0))
 	{
 		PRINTF(m)(LOG_RUNTIME,"Compiler : uncomplete type reaches EOF\n");
@@ -329,7 +329,7 @@ int Compiler::creategraph(Parser* p,int env,int mono,int labels)
 
 
 // création d'un graphe de type à partir d'une chaîne
-int Compiler::creategraph(char* src,int env,int mono)
+int Compiler::creategraph(const char* src,int env,int mono)
 {
 //	PRINTF(m)(LOG_DEVCORE,"Compiler : creategraph : %s\n",src);
 
@@ -624,7 +624,7 @@ int Compiler::recunif(int* s,int* t)
 	s=actualtype(s);
 	t=actualtype(t);
 	if (s==t) return 0;	// ceci gère le cas des types basiques
-	
+
 	int ns=VALTOINT(TABGET(s,TYPEHEADER_CODE));
 	int nt=VALTOINT(TABGET(t,TYPEHEADER_CODE));
 	int ok=1;
@@ -641,7 +641,7 @@ int Compiler::recunif(int* s,int* t)
 		PRINTF(m)(LOG_COMPILER,"\n");
 		return MTLERR_TYPE; // ... il doivent être du même type
 	}
-	
+
 	int vt=TABGET(t,TYPEHEADER_ACTUAL);	// on sauvegarde avant unification
 	int vs=TABGET(s,TYPEHEADER_ACTUAL);
 
@@ -728,7 +728,7 @@ int Compiler::unif_argfun()
 	int k;
 	int* fun=VALTOPNT(STACKPULL(m));
 	int* arg=VALTOPNT(STACKGET(m,0));
-	
+
 	if (k=unif(VALTOPNT(TABGET(fun,TYPEHEADER_LENGTH)),arg)) return k;
 	STACKSET(m,0,TABGET(fun,TYPEHEADER_LENGTH+1));
 	return 0;
@@ -749,7 +749,7 @@ void Compiler::echonode(int code,int* p)
 	else if (code==TYPENAME_TUPLE) PRINTF(m)(LOG_COMPILER,"tuple");
 	else if (code==TYPENAME_FUN) PRINTF(m)(LOG_COMPILER,"fun");
 }
-		
+
 // unification d'un plus grand vers un plus petit
 // attention, OPsearch suppose que seul MTLERR_TYPE peut arriver
 int Compiler::recunifbigger(int* s,int* t)
@@ -758,7 +758,7 @@ int Compiler::recunifbigger(int* s,int* t)
 	s=actualtype(s);
 	t=actualtype(t);
 	if (s==t) return 0;	// ceci gère le cas des types basiques
-	
+
 	int ns=VALTOINT(TABGET(s,TYPEHEADER_CODE));
 	int nt=VALTOINT(TABGET(t,TYPEHEADER_CODE));
 	int ok=1;
@@ -775,7 +775,7 @@ int Compiler::recunifbigger(int* s,int* t)
 		PRINTF(m)(LOG_COMPILER,"\n");
 		return MTLERR_TYPE; // ... il doivent être du même type
 	}
-	
+
 	int vt=TABGET(t,TYPEHEADER_ACTUAL);	// on sauvegarde avant unification
 	int vs=TABGET(s,TYPEHEADER_ACTUAL);
 

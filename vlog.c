@@ -64,8 +64,8 @@ void logGC()
 	consolestr(" hp=");consoleint(vmem_heapindex);
 	consolestr(" used=");consoleint((vmem_heapindex-vmem_stack)*100/VMEM_LENGTH);
 	consolestr("%"ENDLINE);
-        consolestr(" b:");consolehx((int)vmem_heap);
-        consolestr(" bc:");consolehx((int)bytecode);
+        consolestr(" b:");consolehx(*((int*)vmem_heap));
+        consolestr(" bc:");consolehx(*((int*)bytecode));
         consolestr(" st:");consolehx(vmem_start);
         consolestr(" op:");consolehx(currentop);
 	consolestr(ENDLINE);

@@ -6,8 +6,8 @@ COMP_OBJS=main_compiler.o
 SIMU_SRC=main_simu.c linux_simu.c linux_simuaudio.c linux_simunet.c vmem.c vloader.c vlog.c vinterp.c vaudio.c vnet.c
 SIMU_OBJS=$(SIMU_SRC:.c=.o)
 
-CXXFLAGS=-DVSIMU -g3
-CFLAGS=-DVSIMU -g3  # -std=c99
+CXXFLAGS=-DVSIMU -g
+CFLAGS=-DVSIMU -g  # -std=c99
 
 CC=gcc
 CXX=g++
