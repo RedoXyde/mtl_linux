@@ -108,7 +108,7 @@ int BCintb();
 typedef int (Interpreter::*BCfunction)();
 typedef int (*EXTfunction)(void*);
 
-#include"../vbc.h"
+#include"vm/vbc.h"
 
 #define CALLSTACK_LENGTH 6 // taille de la callstack sans les variables locales
 #define CALLSTACK_BC 0	// pointeur bytecode

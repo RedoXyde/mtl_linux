@@ -47,8 +47,8 @@ void simuSetMotor(vub i,vub val){}
 #include<string.h>
 #include<time.h>
 
-#include "linux_simuaudio.h"
-#include "linux_simunet.h"
+#include "simuaudio.h"
+#include "simunet.h"
 #include "log.h"
 
 // définition de l'échelle d'affichage de la simulation
@@ -162,7 +162,7 @@ vsd simuInit()
 	for(i=0;i<NBMOTOR;i++)
 	{
 		motorval[i]=60;//(rand()&255)*MAXMOTORVAL/256;
-		motorcount[i]=motordir[i]=0; 
+		motorcount[i]=motordir[i]=0;
 	}
 	for(i=0;i<256;i++) motorwheel[i]=0;
 	for(i=0;i<MAXMOTORVAL;i++)

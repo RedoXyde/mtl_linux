@@ -156,5 +156,5 @@
 #define OPrfidWrite 149
 #define OPi2cRead 150
 #define OPi2cWrite 151
-
+#define OPstrright 152
 #endif // ! VBC_H_

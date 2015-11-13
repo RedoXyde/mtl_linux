@@ -246,7 +246,8 @@ char* Parser::next(int filter)
 			token=NULL;
 			return NULL;
 		}
-//		term->printf(0,"token=%s\n",token);
+		//~ term->printf(0,"token=%s\n",token);
+    //~ asm volatile ("int3;");
 		if (strcmp(token,"/*")) return token;	// ok
 		i=1;	// gestion des commentaires
 		while(i)

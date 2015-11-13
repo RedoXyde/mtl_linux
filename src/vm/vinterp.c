@@ -99,7 +99,7 @@ void interpGo()
 		consoleint(VSTACKGET(0));consolestr(".");
 		consoleint(vmem_stack);consolestr("/");
 	}
-	
+
 	if (vmem_broken) return;
 	while(1)
 	{
@@ -150,7 +150,7 @@ void interpGo()
 					narg=bytecode[npc];
 					nloc=loaderGetShort(bytecode+npc+1);
 					npc+=3;
-					
+
 					if (callstack<=0)
 					{
 						if (TFCtest(pc,pcbase))
@@ -165,7 +165,7 @@ void interpGo()
 							callstack=ncall;
 						}
 					}
-					
+
 					for(i=0;i<nloc;i++)VPUSH(NIL);
 					VPUSH(INTTOVAL(pc));
 					VPUSH(INTTOVAL(pcbase));
@@ -629,6 +629,22 @@ void interpGo()
 					else VSTACKSET(0,INTTOVAL(((VSTARTBIN(p))[n]&255)));
 				}
 				break;
+      case OPstrright:
+        {
+          int n=VALTOINT(VPULL());  // 2nd arg, nb of chars to keep
+					int p=VALTOPNT(VSTACKGET(0)); // 1st arg, pointer to the source string in stack
+          if(p != NIL)
+          {
+            consolestr("Nb:");
+            consolehx(n);
+            consolestr("Str:");
+            consolehx(p);
+            vmemDump();
+          } else
+           VSTACKSET(0,NIL);
+
+        }
+        break;
 			case OPstrsub:
 				//				vmemDump();
 				{
@@ -783,6 +799,24 @@ void interpGo()
 					}
 				}
 				break;
+      /*
+			case OPloadf:
+				{
+					int len=VPULL();
+					int start=VALTOINT(VPULL());
+					int q=VALTOPNT(VPULL());
+					int index=VALTOINT(VPULL());
+					int p=VALTOPNT(VSTACKGET(0));
+					if ((p!=NIL)&&(q!=NIL))
+					{
+						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
+						len=sysLoad(VSTARTBIN(p),index,VSIZEBIN(p),VSTARTBIN(q),start,len);
+						VSTACKSET(0,INTTOVAL(len));
+					}
+					else VSTACKSET(0,NIL);
+				}
+				break;
+      */
 			case OPload:
 				{
 					int len=VPULL();
@@ -833,13 +867,13 @@ void interpGo()
 						env=VSIZEBIN(p);
 						memcpy(audioFifoPlay,VSTARTBIN(p),env);
 					}
-					
+
 					q=VSTARTBIN(VALTOPNT(VSTACKGET(0)));
 					//                                        dump(q+0x2df0,128);
-					
+
 					loaderInit(q);
 					//                          dump(&bytecode[0x2440],32);
-					
+
 					if (env>=0)
 					{
 						//                                          dump(audioFifoPlay,env);
@@ -890,7 +924,7 @@ void interpGo()
 						else VSTACKSET(0,NIL);
 					}
 					else VSTACKSET(0,NIL);
-					
+
 				}
 				break;
 			case OPtcpOpen:
@@ -1341,7 +1375,7 @@ void interpGo()
 			{
 				//			vmemDumpStack();
 				//			displaybc(pc);
-				
+
 				//			getchar();
 			}
 			op=255&bytecode[pc++];

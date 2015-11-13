@@ -279,7 +279,9 @@ int Compiler::parseref()
 
 		if (code>=0)	// appel d'une fonction
 		{
-			int i; for(i=0;i<code;i++) if (k=parseexpression())
+			int i;
+      for(i=0;i<code;i++)
+      if (k=parseexpression())
 			{
 				PRINTF(m)(LOG_COMPILER,"Compiler : function requires %d arguments\n",code);
 				return k;
@@ -627,10 +629,12 @@ int Compiler::parsematchcons(intptr_t* end)
 
 
 // parsing du let ... -> ... in (le 'let' a déjà été lu)
-int Compiler::parselet()
+intptr_t Compiler::parselet()
 {
-	int k;
 
+	intptr_t k;
+  //~ PRINTF(m)(LOG_COMPILER,"Compiler : let===================================\n");
+  //~ asm volatile ("int3;");
 	if (k=parseexpression()) return k;	// lire la source
 	if (k=parser->parsekeyword("->")) return k;
 

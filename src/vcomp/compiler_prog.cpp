@@ -39,8 +39,9 @@ int Compiler::parseprogram()
 int Compiler::parseexpression()
 {
 	int k;
-
+  //~ asm volatile ("int3;");
 	if (k=parsearithm()) return k;
+  //~ PRINTF(m)(LOG_COMPILER,"Compiler : parseexp arithm\n");
 
 	if (!parser->next(0)) return 0;
 	if (strcmp(parser->token,"::"))

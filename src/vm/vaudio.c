@@ -15,7 +15,7 @@
 #include"vaudio.h"
 
 #ifdef VSIMU
-#include"linux_simuaudio.h"
+#include"simuaudio.h"
 #endif
 #ifdef VREAL
 #include"audio.h"
@@ -61,7 +61,7 @@ int audioPlayFeed(char *src,int len)
 	if (play_w>=play_r) i_end=AUDIO_FIFOPLAY+play_r-1;
 	if (play_w+len>=i_end) len=i_end-play_w;
 	else i_end=play_w+len;
-	
+
 	if (i_end<=play_w) return 0;
 	if (i_end<AUDIO_FIFOPLAY)
 	{
@@ -259,14 +259,14 @@ int mydecode(unsigned int adpcm)
 	int predicedValue;
 	int stepIndex = StepIndex;
 	int step = IMA_ADPCMStepTable[stepIndex];
-	
+
 	stepIndex += IMA_ADPCMIndexTable[adpcm&7];
 	if(stepIndex<0)
 		stepIndex = 0;
 	else if(stepIndex>88)
 		stepIndex = 88;
 	StepIndex = stepIndex;
-	
+
 	diff = step>>3;
 	if(adpcm&4)
 		diff += step;
@@ -274,7 +274,7 @@ int mydecode(unsigned int adpcm)
 		diff += step>>1;
 	if(adpcm&1)
 		diff += step>>2;
-	
+
 	predicedValue = PredictedValue;
 	if(adpcm&8)
 		predicedValue -= diff;
@@ -301,7 +301,7 @@ int myvolume()
 int audioRecVol(unsigned char* src,int len,int start)
 {
 	int s0,st,i;
-	
+
 	if (start+256>len) return 0;
 	src+=start;
 	s0=(src[0]&255)+((src[1]&255)<<8); src+=2;
@@ -330,7 +330,7 @@ void adpcmdecode(unsigned char* src,char *dstc)
 		*(dst++)=mydecode(c&15);
 		*(dst++)=mydecode((c>>4)&15);
 	}
-	
+
 }
 
 int myencode(int16_t pcm16)
@@ -338,7 +338,7 @@ int myencode(int16_t pcm16)
 	int step,diff;
 	int predicedValue = PredictedValue;
 	int stepIndex = StepIndex;
-	
+
 	int delta = pcm16-predicedValue;
 	unsigned int value;
 	if(delta>=0)
@@ -348,7 +348,7 @@ int myencode(int16_t pcm16)
 		value = 8;
 		delta = -delta;
 	}
-	
+
 	step = IMA_ADPCMStepTable[stepIndex];
 	diff = step>>3;
 	if(delta>step)
@@ -370,7 +370,7 @@ int myencode(int16_t pcm16)
 		value |= 1;
 		diff += step;
 	}
-	
+
 	if(value&8)
 		predicedValue -= diff;
 	else
@@ -380,14 +380,14 @@ int myencode(int16_t pcm16)
 	else if(predicedValue>0x7fff)
 		predicedValue = 0x7fff;
 	PredictedValue = predicedValue;
-	
+
 	stepIndex += IMA_ADPCMIndexTable[value&7];
 	if(stepIndex<0)
 		stepIndex = 0;
 	else if(stepIndex>88)
 		stepIndex = 88;
 	StepIndex = stepIndex;
-	
+
 	return value&15;
 }
 
@@ -396,10 +396,10 @@ void adpcmencode(short* src,char *dst)
 	int delta,stepIndex,i;
 	short sample1,sample2;
 	short* p;
-	
+
 	sample1=src[0];
 	sample2=src[1];
-	
+
 	PredictedValue = sample1;
 	delta = sample2-sample1;
 	if(delta<0)
@@ -410,11 +410,11 @@ void adpcmencode(short* src,char *dst)
 	while(IMA_ADPCMStepTable[stepIndex]<(unsigned)delta)
 		stepIndex++;
 	StepIndex = stepIndex;
-	
+
 	p=(short*)dst;
 	p[0]=sample1;
 	p[1]=StepIndex;
-	
+
 	dst+=4;
 	for(i=1;i<505;i+=2)
 	{

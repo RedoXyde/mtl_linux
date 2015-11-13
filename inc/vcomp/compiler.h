@@ -114,7 +114,7 @@ private:
 	int parseterm();
 	int parseref();
 	int parseif();
-	int parselet();
+	intptr_t parselet();
 	int parseset();
 	int parsewhile();
 	int parsefor();

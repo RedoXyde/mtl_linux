@@ -1,6 +1,6 @@
-*.o
+obj/
 mtl_simu
-mtl_comp
+mtl_compiler
+libvcomp.a
 *.bin
-*.a
-.*
+*.mtl

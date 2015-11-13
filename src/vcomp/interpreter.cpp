@@ -18,7 +18,7 @@
 #include "interpreter.h"
 #include "compiler.h"
 
-#include"../vbc_str.h"
+#include"vm/vbc_str.h"
 
 void displaybc(Memory* m,char* p)
 {
