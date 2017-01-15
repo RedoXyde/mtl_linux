@@ -26,7 +26,7 @@ VCOMP_C_FILES  = $(wildcard src/vcomp/*.c)
 VCOMP_CPP_FILES  = $(wildcard src/vcomp/*.cpp)
 
 # Compiler options
-CFLAGS += -O0
+CFLAGS += -O0 -m32
 CFLAGS += -g
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith
 #CFLAGS += -fdata-sections -ffunction-sections
@@ -41,7 +41,7 @@ CFLAGS += -I./inc/simu/$(OS)
 CPP_FLAGS = $(CFLAGS)
 
 # Linker options
-LD_FLAGS =
+LDFLAGS = -m32
 # LDFLAGS +=  -Wl,--gc-sections
 # LDFLAGS += -Wl,-s
 
