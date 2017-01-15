@@ -99,6 +99,7 @@ int main(int argc,char **argv)
 	}
 
 	StartMetal(source, output, signBinary);
+	loadbytecode(output);
 	return 0;
 }
 
